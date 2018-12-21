@@ -44,8 +44,36 @@ test_that("can download dataset", {
   dir.create("./temp")
   result <- download_dataset(default_conn, "mass", "./temp")
   fs <- file.size("./temp/mass.zip")
-  browser()
   expect_gt(fs, 1000)
   file.remove("./temp/mass.zip")
 })
+
+test_that("can get valid gene nomenclature", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  data <- get_valid_gene_nomenclatures(default_conn)
+  expect_true("Entrez" %in% data)
+})
+
+test_that("can get valid matrix formats", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  data <- get_valid_matrix_formats(default_conn)
+  expect_true("sparse_cell_gene_expression" %in% data)
+})
+
+test_that("can get valid technologies", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  data <- get_valid_technologies(default_conn)
+  browser()
+  expect_true("Drop-Seq" %in% data)
+})
+
+test_that("can get valid current normalization status", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  data <- get_valid_current_normalization_status(default_conn)
+  browser()
+  expect_true("Counts" %in% data)
+})
+
+
+
 

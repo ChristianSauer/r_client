@@ -12,8 +12,9 @@ get_datasets <- function(connection, scope="All"){
     msg = str_interp("scope is '${scope}' but should be one of: ${scope_str}")
     stop(msg)
   }
-
+  assert_token_is_not_expired(connection)
   assert_is_connection(connection)
+
   url <-  paste(connection@base_url, "dataset/api/v1/datasets", sep="")
   headers <- get_default_headers(connection)
   response <- httr::GET(url, headers, query=list(scope=scope,includeHateoas="true" ))
@@ -32,6 +33,7 @@ get_datasets <- function(connection, scope="All"){
 
 get_dataset <- function(connection, dataset_id){
   assert_is_connection(connection)
+  assert_token_is_not_expired(connection)
 
   if(dataset_id == "")
   {
@@ -86,13 +88,81 @@ download_dataset <- function(connection, dataset_id, folder_path){
   }
 
  url <- paste(substr(connection@base_url, 1, nchar(connection@base_url)-1), download_link, sep="")
- browser()
  headers <- get_default_headers(connection)
  headers["output"] = write_disk(file.path(folder_path, str_interp("${dataset_id}.zip")))["output"]
  response <- httr::GET(url, headers)
 
  stop_for_status(response)
 }
+
+create_dataset <- function(connection, title, description, short_description, organism_id, matrix_path , matrix_format, gene_nomenclature, additional_parameters=NULL)
+{
+  assert_is_connection(connection)
+  assert_token_is_not_expired(connection)
+
+  headers <- get_default_headers(connection)
+  url <- paste(connection@base_url, "dataset/api/v1/validgenenomenclatures", sep="")
+  response <- httr::GET(url, headers)
+  stop_for_status(response)
+  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = TRUE)
+  browser()
+  valid_gene_nomenclatures = parsed
+
+}
+
+get_valid_gene_nomenclatures = function(connection){
+  assert_is_connection(connection)
+  assert_token_is_not_expired(connection)
+
+  headers <- get_default_headers(connection)
+  url <- paste(connection@base_url, "dataset/api/v1/validgenenomenclatures", sep="")
+  response <- httr::GET(url, headers)
+  stop_for_status(response)
+  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+  valid_gene_nomenclatures = lapply(parsed, function(x){ return(x[["key"]])})
+  return(valid_gene_nomenclatures)
+}
+
+get_valid_matrix_formats = function(connection){
+  assert_is_connection(connection)
+  assert_token_is_not_expired(connection)
+
+  headers <- get_default_headers(connection)
+  url <- paste(connection@base_url, "dataset/api/v1/validmatrixformats", sep="")
+  response <- httr::GET(url, headers)
+  stop_for_status(response)
+  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+  valid_gene_nomenclatures = lapply(parsed, function(x){ return(x[["key"]])})
+  return(valid_gene_nomenclatures)
+}
+
+get_valid_technologies = function(connection){
+  assert_is_connection(connection)
+  assert_token_is_not_expired(connection)
+
+  headers <- get_default_headers(connection)
+  url <- paste(connection@base_url, "dataset/api/v1/validtechnologies", sep="")
+  response <- httr::GET(url, headers)
+  stop_for_status(response)
+  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+  valid_gene_nomenclatures = lapply(parsed, function(x){ return(x[["key"]])})
+  return(valid_gene_nomenclatures)
+}
+
+get_valid_current_normalization_status = function(connection){
+  assert_is_connection(connection)
+  assert_token_is_not_expired(connection)
+
+  headers <- get_default_headers(connection)
+  url <- paste(connection@base_url, "dataset/api/v1/validcurrentnormalizationstatus", sep="")
+  response <- httr::GET(url, headers)
+  stop_for_status(response)
+  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+  valid_gene_nomenclatures = lapply(parsed, function(x){ return(x[["key"]])})
+  return(valid_gene_nomenclatures)
+}
+
+
 
 setClass("FGResponse",
          slots = c(
@@ -103,6 +173,7 @@ setClass("FGResponse",
            Id = "character"
          )
 )
+
 
 setMethod("show", "FGResponse", function(object) {
   cat(is(object)[[1]], "\n",
