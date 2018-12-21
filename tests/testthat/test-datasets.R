@@ -33,4 +33,19 @@ test_that("can handle non existing dataset", {
 
 })
 
+test_that("folder for get data must exist", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  expect_error(download_dataset(default_conn, "mass", "./imposssible"), "The folder './imposssible' does not exist, please create it")
+
+})
+
+test_that("can download dataset", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  dir.create("./temp")
+  result <- download_dataset(default_conn, "mass", "./temp")
+  fs <- file.size("./temp/mass.zip")
+  browser()
+  expect_gt(fs, 1000)
+  file.remove("./temp/mass.zip")
+})
 

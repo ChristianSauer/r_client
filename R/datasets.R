@@ -61,6 +61,38 @@ get_dataset <- function(connection, dataset_id){
   result <- new("FGResponse", path = url, content = parsed, DataType="Dataset", Id=dataset_id )
 }
 
+download_dataset <- function(connection, dataset_id, folder_path){
+  if (!dir.exists(folder_path))
+  {
+    msg = str_interp("The folder '${folder_path}' does not exist, please create it")
+    stop(msg)
+  }
+
+  dataset <- get_dataset(connection, dataset_id)
+  download_link <- ""
+  for (lnk in dataset@content[["links"]]){
+    rel <- lnk[["rel"]]
+
+    if (rel == "download-dataset-complete-zip")
+    {
+       download_link <- lnk[["href"]]
+    }
+  }
+
+  if (download_link == "")
+  {
+    msg = str_interp("No download link found, something is wrong. Please contact us.")
+    stop(msg)
+  }
+
+ url <- paste(substr(connection@base_url, 1, nchar(connection@base_url)-1), download_link, sep="")
+ browser()
+ headers <- get_default_headers(connection)
+ headers["output"] = write_disk(file.path(folder_path, str_interp("${dataset_id}.zip")))["output"]
+ response <- httr::GET(url, headers)
+
+ stop_for_status(response)
+}
 
 setClass("FGResponse",
          slots = c(
