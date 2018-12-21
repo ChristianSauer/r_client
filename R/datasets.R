@@ -2,6 +2,7 @@ library(methods)
 library(stringr)
 library(httr)
 library(jsonlite)
+library(installr)
 
 scopes = list("All", "Public", "Private")
 
@@ -95,19 +96,54 @@ download_dataset <- function(connection, dataset_id, folder_path){
  stop_for_status(response)
 }
 
-create_dataset <- function(connection, title, description, short_description, organism_id, matrix_path , matrix_format, gene_nomenclature, additional_parameters=NULL)
+create_dataset <- function(connection, title, description, short_description, organism_id, matrix_path , matrix_format, gene_nomenclature, optional_parameters=NULL)
 {
   assert_is_connection(connection)
   assert_token_is_not_expired(connection)
 
-  headers <- get_default_headers(connection)
-  url <- paste(connection@base_url, "dataset/api/v1/validgenenomenclatures", sep="")
-  response <- httr::GET(url, headers)
-  stop_for_status(response)
-  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = TRUE)
-  browser()
-  valid_gene_nomenclatures = parsed
+  gene_nomenclatures <- get_valid_gene_nomenclatures(connection)
+  if (!gene_nomenclature %in% gene_nomenclatures)
+  {
+    str = paste(as.character(gene_nomenclatures), collapse=", ")
+    stop(stringr::str_interp("The Gene Nomenclature '${gene_nomenclature} is unknown. Choose one of: ${str}' "))
+  }
 
+  if (!installr:::check.integer(organism_id))
+  {
+    stop(stringr::str_interp("The organism id '${organism_id}' is not an integer. Choose Homo Sapiens: 9606 Mouse: 10090"))
+  }
+
+  matrix_formats <- get_valid_matrix_formats(connection)
+  if (!matrix_format %in% matrix_formats)
+  {
+    str = paste(as.character(matrix_formats), collapse=", ")
+    stop(stringr::str_interp("The Matrix format '${matrix_format}' is unknown. Choose one of: ${str}' "))
+  }
+
+  if (!file.exists(matrix_path))
+  {
+    stop(stringr::str_interp("The file '${matrix_path}' does not exist. Please provide a valid file!. See https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md for valid file formats "))
+  }
+
+  headers <- get_default_headers(connection)
+  url <-  paste(connection@base_url, "dataset/api/v1/datasets", sep="")
+
+  body = list(
+    matrix  = upload_file(matrix_path),
+                          title = title,
+                          description = description,
+                          short_description = short_description,
+                          organism_id = organism_id,
+                          matrix_format= matrix_format,
+                          gene_nomenclature=gene_nomenclature)
+
+  request <- httr::POST(url, headers, body = body )
+
+  # todo optional parameters
+  # todo poll upload status
+  # todo handle error ase
+  browser()
+  stop_for_status(request)
 }
 
 get_valid_gene_nomenclatures = function(connection){

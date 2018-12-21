@@ -63,17 +63,50 @@ test_that("can get valid matrix formats", {
 test_that("can get valid technologies", {
   default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   data <- get_valid_technologies(default_conn)
-  browser()
   expect_true("Drop-Seq" %in% data)
 })
 
 test_that("can get valid current normalization status", {
   default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   data <- get_valid_current_normalization_status(default_conn)
-  browser()
   expect_true("Counts" %in% data)
 })
 
 
+test_that("create: gene nomenclature must be valid", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  expect_error(create_dataset(default_conn, "title", "description", "short_description", 9606, "matrix_path" , "matrix_format", "gene_nomenclature" ), "The Gene Nomenclature 'gene_nomenclature is unknown. Choose one of: Entrez, GeneSymbol, Ensembl'")
+
+})
 
 
+test_that("create: organism_id must be valid", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  expect_error(create_dataset(default_conn, "title", "description", "short_description", "dsgsdfg", "matrix_path" , "matrix_format", "Entrez" ), "The organism id 'dsgsdfg' is not an integer. Choose Homo Sapiens: 9606 Mouse: 10090")
+
+})
+
+test_that("create: matrix format must be valid", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  expect_error(create_dataset(default_conn, "title", "description", "short_description", 9606, "matrix_path" , "matrix_format", "Entrez" ), "The Matrix format 'matrix_format' is unknown. Choose one of: sparse_cell_gene_expression, sparse_gene_cell_expression, dense_cells_in_rows, dense_cells_in_columns'")
+
+})
+
+test_that("create: matrix path must be valid", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  expect_error(create_dataset(default_conn, "title", "description", "short_description", 9606, "matrix_path" , "sparse_cell_gene_expression", "Entrez" ), "The file 'matrix_path' does not exist. Please provide a valid file!. See https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md for valid file formats")
+
+})
+
+test_that("create: works", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  result <- create_dataset(default_conn, "R client test", "description", "short_description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez" )
+
+})
+
+
+test_that("create: fails if title too short", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  result <- expect_error(create_dataset(default_conn, "", "description", "short_description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez" ), "abc")
+
+})

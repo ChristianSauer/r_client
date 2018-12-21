@@ -14,6 +14,7 @@ Imports:
     httr,
     jose,
     stringr,
-    jsonlite
+    jsonlite,
+    installr
 Suggests: 
     testthat
