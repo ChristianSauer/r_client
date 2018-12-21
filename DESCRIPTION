@@ -1,12 +1,12 @@
 Package: fastgenomicsRclient
-Title: What the Package Does (One Line, Title Case)
+Title: Manage FASTGenomics Instances
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Christian",
+           family = "Sauer",
            role = c("aut", "cre"),
-           email = "first.last@example.com")
-Description: What the package does (one paragraph).
+           email = "christian.sauer@comma-soft.com")
+Description: Upload, Download datasets and create analysis.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
