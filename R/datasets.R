@@ -15,12 +15,9 @@ get_datasets <- function(connection, scope="All"){
 
   assert_is_connection(connection)
   url <-  paste(connection@base_url, "dataset/api/v1/datasets", sep="")
-  client_version = getNamespaceVersion("fastgenomicsRclient")
-  ua <- str_interp("FASTGenomicsRClient Version ${client_version}")
-  headers = httr::add_headers(useragent = ua, Authorization = connection@bearer_token)
+  headers <- get_default_headers(connection)
   response <- httr::GET(url, headers, query=list(scope=scope,includeHateoas="true" ))
   stop_for_status(response)
-  # todo query! # hateoas
 
   if (http_type(response) != "application/json") {
     stop("API did not return json", call. = FALSE)
@@ -31,6 +28,37 @@ get_datasets <- function(connection, scope="All"){
   result <- new("FGResponse", path = url, content = parsed, DataType="List ofDatasets", Id=dataset_id )
 
   return(result)
+}
+
+get_dataset <- function(connection, dataset_id){
+  assert_is_connection(connection)
+
+  if(dataset_id == "")
+  {
+    msg = str_interp("dataset_id cannot be empty!")
+    stop(msg)
+  }
+
+  url <- paste(connection@base_url, "dataset/api/v1/datasets/", dataset_id, sep="")
+
+  headers <- get_default_headers(connection)
+  response <- httr::GET(url, headers, query=list(includeHateoas="true"))
+
+  if (response["status_code"] == 404) {
+    stop(str_interp("The dataset '${dataset_id}' was not found on the server"),
+      call. = FALSE
+    )
+ }
+
+  stop_for_status(response)
+
+  if (http_type(response) != "application/json") {
+    stop("API did not return json", call. = FALSE)
+  }
+
+  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+  dataset_id <- parsed[["dataset_id"]]
+  result <- new("FGResponse", path = url, content = parsed, DataType="Dataset", Id=dataset_id )
 }
 
 

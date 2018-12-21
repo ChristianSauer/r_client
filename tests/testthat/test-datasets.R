@@ -9,8 +9,7 @@ test_that("scope is valid", {
 })
 
 
-test_that("can get successfully", {
-  browser()
+test_that("can get datasets successfully", {
   default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   datasets <- get_datasets(default_conn, "All")@content
   n_all_datasets = length(datasets)
@@ -20,3 +19,18 @@ test_that("can get successfully", {
   n_private_datasets = length(datasets)
   expect_lt(n_private_datasets, n_all_datasets )
 })
+
+test_that("can get mass dataset successfully", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  dataset <- get_dataset(default_conn, "mass")
+  ds_id <- dataset@Id
+  expect_equal(dataset@Id, "mass")
+})
+
+test_that("can handle non existing dataset", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  expect_error(get_dataset(default_conn, "does_not_exist"), "The dataset 'does_not_exist' was not found on the serve")
+
+})
+
+
