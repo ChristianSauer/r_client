@@ -111,58 +111,33 @@ create_dataset <- function(connection, title, description, short_description, or
 }
 
 get_valid_gene_nomenclatures = function(connection){
-  assert_is_connection(connection)
-  assert_token_is_not_expired(connection)
-
-  headers <- get_default_headers(connection)
-  url <- paste(connection@base_url, "dataset/api/v1/validgenenomenclatures", sep="")
-  response <- httr::GET(url, headers)
-  stop_for_status(response)
-  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
-  valid_gene_nomenclatures = lapply(parsed, function(x){ return(x[["key"]])})
-  return(valid_gene_nomenclatures)
+  return(get_info(connection, "dataset/api/v1/validgenenomenclatures"))
 }
 
 get_valid_matrix_formats = function(connection){
-  assert_is_connection(connection)
-  assert_token_is_not_expired(connection)
-
-  headers <- get_default_headers(connection)
-  url <- paste(connection@base_url, "dataset/api/v1/validmatrixformats", sep="")
-  response <- httr::GET(url, headers)
-  stop_for_status(response)
-  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
-  valid_gene_nomenclatures = lapply(parsed, function(x){ return(x[["key"]])})
-  return(valid_gene_nomenclatures)
+  return(get_info(connection, "dataset/api/v1/validmatrixformats"))
 }
 
 get_valid_technologies = function(connection){
-  assert_is_connection(connection)
-  assert_token_is_not_expired(connection)
-
-  headers <- get_default_headers(connection)
-  url <- paste(connection@base_url, "dataset/api/v1/validtechnologies", sep="")
-  response <- httr::GET(url, headers)
-  stop_for_status(response)
-  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
-  valid_gene_nomenclatures = lapply(parsed, function(x){ return(x[["key"]])})
-  return(valid_gene_nomenclatures)
+  return(get_info(connection, "dataset/api/v1/validtechnologies"))
 }
 
 get_valid_current_normalization_status = function(connection){
+  return(get_info(connection, "dataset/api/v1/validcurrentnormalizationstatus"))
+}
+
+get_info <- function(connection, url){
   assert_is_connection(connection)
   assert_token_is_not_expired(connection)
 
   headers <- get_default_headers(connection)
-  url <- paste(connection@base_url, "dataset/api/v1/validcurrentnormalizationstatus", sep="")
+  url <- paste(connection@base_url, url, sep="")
   response <- httr::GET(url, headers)
   stop_for_status(response)
   parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
-  valid_gene_nomenclatures = lapply(parsed, function(x){ return(x[["key"]])})
-  return(valid_gene_nomenclatures)
+  data = lapply(parsed, function(x){ return(x[["key"]])})
+  return(data)
 }
-
-
 
 setClass("FGResponse",
          slots = c(
