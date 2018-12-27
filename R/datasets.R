@@ -155,10 +155,23 @@ create_dataset <- function(connection, title, description, short_description, or
   # todo optional parameters
   # todo poll upload status
   # todo handle error ase
+
+  if (response["status_code"] == 422) {
+    parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+    validation_errors <- parsed[["validation_errors"]]
+    warning(stringr::str_interp("Upload of dataset failed due to these errors: ${validation_errors}"),
+            call. = FALSE
+    )
+
+    error <- new("FGErrorResponse", path = url, content = parsed, validation_errors=parsed[["validation_errors"]])
+    return(error)
+  }
+
   stop_for_status(response)
   parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
   dataset_id <- parsed[["dataset_id"]]
-  result <- new("FGResponse", path = url, content = parsed, DataType="Dataset", Id=dataset_id )
+  result <-new("FGResponse", path = url, content = parsed, DataType="Dataset", Id=dataset_id )
+  return(result)
 }
 
 get_valid_gene_nomenclatures = function(connection){
@@ -221,6 +234,14 @@ setClass("FGResponse",
            response   = "list",
            DataType = "character",
            Id = "character"
+         )
+)
+
+setClass("FGErrorResponse",
+         slots = c(
+           content  = "list",
+           path  = "character",
+           validation_errors = "list"
          )
 )
 

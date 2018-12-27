@@ -152,3 +152,20 @@ test_that("create: works with optional parameters", {
                            optional )
   expect_is(result, "FGResponse")
 })
+
+test_that("create: shows usefull errors", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  optional <- FGDatasetUploadParameters(
+    cell_metadata="./test-datasets.R" # <--- should error
+  )
+  result <- create_dataset(default_conn,
+                           "R client test",
+                           "description",
+                           "short_description",
+                           9606,
+                           "./matrix.tsv" ,
+                           "sparse_cell_gene_expression",
+                           "Entrez",
+                           optional )
+  expect_is(result, "FGErrorResponse")
+})
