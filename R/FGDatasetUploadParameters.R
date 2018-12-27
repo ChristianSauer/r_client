@@ -39,6 +39,32 @@ setClass("FGDatasetUploadParameters",
 )
 
 
+#' Get the optional parameters to create a dataset
+#'
+#' @param license The license to be used. If the data are owned by yourself, you can use https://creativecommons.org/choose/ to choose a license. If not, you have to find the license used by the dataset, e.g. talk to your supervisor.
+#' @param web_link The website of your dataset.
+#' @param notes Privates notes
+#' @param citation How to cite this dataset
+#' @param technology The technology used to obtain this dataset. call fastgenomicsRclient::get_valid_technologies to get a list
+#' @param batch_column The colum in the cell metadata which holds information about the batch. Can be blank. If not blank, cell_metadata have to be included.
+#' @param current_normalization_status The current_normalization_status used to obtain this dataset. call fastgenomicsRclient::get_current_normalization_status to get a list
+#' @param cell_metadata The path to your cell metadata file, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md
+#' @param gene_metadata The path to your gene metadata, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md
+#'
+#' @return class FGDatasetUploadParameters
+#' @export
+#'
+#' @examples
+#' optional <- fastgenomicsRclient::FGDatasetUploadParameters(
+#'                                         license ="MIT",
+#'                                         technology = "Smart-Seq",
+#'                                         web_link="https://example.com",
+#'                                         notes="This is a TEST",
+#'                                         citation="FG et al",
+#'                                         batch_column="sample",
+#'                                         current_normalization_status="Counts",
+#'                                         cell_metadata="./cell_metadata.tsv",
+#'                                         gene_metadata="./gene_metadata.tsv"  )
 FGDatasetUploadParameters <- function( license  = "",
                                        web_link  = "",
                                        notes   = "",

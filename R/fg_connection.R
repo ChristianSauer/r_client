@@ -4,6 +4,18 @@ library(jose)
 library(jsonlite)
 library(stringr)
 
+#' A FGConnection
+#'
+#'  Make sure that you never share an environment which contains such an object.
+#'
+#' @slot base_url the URL.
+#' @slot bearer_token the token.
+#'
+#' @return class FGConnection
+#' @export
+#'
+#' @examples
+#' None
 setClass("FGConnection",
          slots = c(
            base_url = "character",
@@ -18,6 +30,15 @@ assert_is_connection <- function(connection){
   }
 }
 
+#' Helper Function to check if a FGConnection is still valid. Normally called automatically.
+#'
+#' @param connection The connection to be tested
+#'
+#' @return None
+#' @export
+#'
+#' @examples
+#' None
 assert_token_is_not_expired <- function(connection){
   jwt <-stringr::str_replace(connection@bearer_token, "Bearer ", "")
   (strings <- strsplit(jwt, ".", fixed = TRUE)[[1]])

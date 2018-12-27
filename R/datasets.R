@@ -7,6 +7,20 @@ library(lubridate)
 
 scopes = list("All", "Public", "Private")
 
+#' Get all datasets
+#'
+#' This list does not contain rejected datasets, only valid, usable datasets.
+#'
+#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param scope Filters the datasets by their scope. Possible Values are: 'All': return all datasets, 'Private': Only your personal datasets, 'Public': Only public datasets
+#'
+#' @return A FGResponse object
+#' @export
+#'
+#' @examples
+#' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Beaer ey...")
+#' datasets <- fastgenomicsRclient::get_datasets(connection)
+#' print(datasets@content) # all datasets available to you
 get_datasets <- function(connection, scope="All"){
   if(!scope %in% scopes)
   {
@@ -33,6 +47,21 @@ get_datasets <- function(connection, scope="All"){
   return(result)
 }
 
+
+#' Get a specific dataset
+#'
+#' Gets information about a specific dataset. This can also be used to obtain information about a failed dataset upload
+#'
+#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param dataset_id The id of the dataset, usually starting with dts_*****
+#'
+#' @return A FGResponse object
+#' @export
+#'
+#' @examples
+#' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Beaer ey...")
+#' datasets <- fastgenomicsRclient::get_dataset(connection, "dts_abc")
+#' print(datasets@content) # the dataset
 get_dataset <- function(connection, dataset_id){
   assert_is_connection(connection)
   assert_token_is_not_expired(connection)
@@ -65,6 +94,18 @@ get_dataset <- function(connection, dataset_id){
   result <- new("FGResponse", path = url, content = parsed, DataType="Dataset", Id=dataset_id )
 }
 
+#' Downloads the whole dataset content as a zip file to the specified folder
+#'
+#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param dataset_id The id of the dataset, usually starting with dts_*****
+#' @param folder_path Where to store the dataset? Must exist and be writeable
+#'
+#' @return None, see the folder for the content
+#' @export
+#'
+#' @examples
+#' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Beaer ey...")
+#' fastgenomicsRclient::download_dataset(connection, "dts_abc", "/temp/")
 download_dataset <- function(connection, dataset_id, folder_path){
   if (!dir.exists(folder_path))
   {
@@ -97,6 +138,47 @@ download_dataset <- function(connection, dataset_id, folder_path){
  stop_for_status(response)
 }
 
+#' Creates a new dataset on fastgenomics
+#'
+#' This call will create the dataset, but the validation on the server can take a long time. The dataset cannot be used before the validation is complete. Use fastgenomicsRclient::poll_for_upload_to_complete to wait for this.
+#'
+#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param title The Title of the dataset
+#' @param description A description of the dataset, ca be Markdown
+#' @param short_description A oneliner describing your dataset
+#' @param organism_id The NCBI Taxonomy ID of your dataset. Homo Sapiens: 9606 Mouse: 10090
+#' @param matrix_path The path to your datafile, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md
+#' @param matrix_format The format of your matrix, see https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md for valid names
+#' @param gene_nomenclature The gene nomenclature to be used, call fastgenomicsRclient::get_valid_gene_nomenclatures to get a list of supported formats
+#' @param optional_parameters Further parameters to be used, eg. gene metadata or cell metadata files. Use fastgenomicsRclient::get_data_from_FGDatasetUploadParameters  to create this parameters.
+#'
+#' @return FGResponse in case of success, FGErrorResponse if the validation failed for any reason.
+#' @export
+#'
+#' @examples
+#' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Beaer ey...")
+#' optional <- fastgenomicsRclient::FGDatasetUploadParameters(
+#'                                         license ="MIT",
+#'                                         technology = "Smart-Seq",
+#'                                         web_link="https://example.com",
+#'                                         notes="This is a TEST",
+#'                                         citation="FG et al",
+#'                                         batch_column="sample",
+#'                                         current_normalization_status="Counts",
+#'                                         cell_metadata="./cell_metadata.tsv",
+#'                                         gene_metadata="./gene_metadata.tsv"  )
+#'  result <- fastgenomicsRclient::create_dataset(connection,
+#'                            "R client test",
+#'                            "description",
+#'                            "short_description",
+#'                            9606,
+#'                            "./matrix.tsv" ,
+#'                            "sparse_cell_gene_expression",
+#'                            "Entrez",
+#'                            optional )
+#'
+#'  status <- fastgenomicsRclient::poll_for_upload_to_complete(connection, result, 1 ) # validation messages are shown as messages
+#'  print(status) # should be TRUE
 create_dataset <- function(connection, title, description, short_description, organism_id, matrix_path , matrix_format, gene_nomenclature, optional_parameters=NULL)
 {
   assert_is_connection(connection)
@@ -173,6 +255,19 @@ create_dataset <- function(connection, title, description, short_description, or
   return(result)
 }
 
+#' Waits for the validation of the dataset to complete.
+#'
+#' Messages and errors are used to show messages. If you need all messages, use fastgenomicsRclient::get_dataset with the id of this dataset
+#'
+#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param dataset_id The id of the dataset, usually starting with dts_***** OR a FGResponse object
+#' @param poll_intervall The time to wait for a new status update in seconds
+#'
+#' @return TRUE if the validation succeeded, otherweise FALSE
+#' @export
+#'
+#' @examples
+#' See create_dataset example
 poll_for_upload_to_complete <- function(connection, dataset_id, poll_intervall=10){
   assert_is_connection(connection)
   assert_token_is_not_expired(connection)
@@ -237,18 +332,54 @@ poll_for_upload_to_complete <- function(connection, dataset_id, poll_intervall=1
 
 }
 
+#' Get a list of all supported gene nomenclatures
+#'
+#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#'
+#' @return a list of the valid gene nomenclatures
+#' @export
+#'
+#' @examples
+#' None
 get_valid_gene_nomenclatures = function(connection){
   return(get_info(connection, "dataset/api/v1/validgenenomenclatures"))
 }
 
+#' Get a list of all supported matrix formats
+#'
+#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#'
+#' @return a list of the valid matrix formats
+#' @export
+#'
+#' @examples
+#' None
 get_valid_matrix_formats = function(connection){
   return(get_info(connection, "dataset/api/v1/validmatrixformats"))
 }
 
+#' Get a list of all supported technologies
+#'
+#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#'
+#' @return a list of the valid technologies
+#' @export
+#'
+#' @examples
+#' None
 get_valid_technologies = function(connection){
   return(get_info(connection, "dataset/api/v1/validtechnologies"))
 }
 
+#' Get a list of all supported normalization schemes
+#'
+#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#'
+#' @return a list of supported normalization schemes
+#' @export
+#'
+#' @examples
+#' None
 get_valid_current_normalization_status = function(connection){
   return(get_info(connection, "dataset/api/v1/validcurrentnormalizationstatus"))
 }
