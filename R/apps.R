@@ -6,8 +6,6 @@ library(installr)
 library(lubridate)
 library(curl) # not a dep, imported through httr
 
-scopes = list("All", "Public", "Private")
-
 #' Get all apps
 #'
 #' This list does not contain rejected apps, only valid, usable apps
@@ -150,7 +148,7 @@ poll_app_until_validated <- function(connection, app_id, poll_intervall=10){
   {
     stop(stringr::str_interp("app_id can be either a character vector or a FgResponse object."))
   }
-  browser()
+
   headers <- get_default_headers(connection)
   url <-  paste(connection@base_url, "app/api/v1/apps/", curl::curl_escape(app_id), "/upload_status", sep="")
   last_check <- lubridate::ymd("2010/03/17") # something old

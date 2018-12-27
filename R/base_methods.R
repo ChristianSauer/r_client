@@ -29,11 +29,13 @@ get_data_list <- function(connection, scope, url, data_type, queries=list()){
   return(result)
 }
 
-get_data <- function(connection, object_id, url, data_type, queries=list()){
+get_data <- function(connection, object_id, url, data_type, queries=list(), additional_headers=list()){
   assert_is_connection(connection)
   assert_token_is_not_expired(connection)
 
   headers <- get_default_headers(connection)
+
+  headers <- c(headers, additional_headers)
   response <- httr::GET(url, headers,  query=queries)
 
   if (response["status_code"] == 404) {
