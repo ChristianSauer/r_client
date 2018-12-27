@@ -55,6 +55,6 @@ optional <- fastgenomicsRclient::FGDatasetUploadParameters(
                            "Entrez",
                            optional )
 
- status <- fastgenomicsRclient::poll_for_upload_to_complete(connection, result, 1 ) # validation messages are shown as messages
+ status <- fastgenomicsRclient::poll_dataset_until_validated(connection, result, 1 ) # validation messages are shown as messages
  print(status) # should be TRUE
 }

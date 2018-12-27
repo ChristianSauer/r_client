@@ -22,27 +22,8 @@ scopes = list("All", "Public", "Private")
 #' datasets <- fastgenomicsRclient::get_datasets(connection)
 #' print(datasets@content) # all datasets available to you
 get_datasets <- function(connection, scope="All"){
-  if(!scope %in% scopes)
-  {
-    scope_str = paste(as.character(scopes), collapse=", ")
-    msg = str_interp("scope is '${scope}' but should be one of: ${scope_str}")
-    stop(msg)
-  }
-  assert_token_is_not_expired(connection)
-  assert_is_connection(connection)
-
   url <-  paste(connection@base_url, "dataset/api/v1/datasets", sep="")
-  headers <- get_default_headers(connection)
-  response <- httr::GET(url, headers, query=list(scope=scope,includeHateoas="true" ))
-  stop_for_status(response)
-
-  if (http_type(response) != "application/json") {
-    stop("API did not return json", call. = FALSE)
-  }
-
-  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
-  dataset_id <- "" #  we do have multiple objects, so no id
-  result <- new("FGResponse", path = url, content = parsed, DataType="List ofDatasets", Id=dataset_id )
+  result <- get_data_list(connection, scope, url, "dataset", queries=list(includeHateoas="true" ))
 
   return(result)
 }
@@ -63,35 +44,9 @@ get_datasets <- function(connection, scope="All"){
 #' datasets <- fastgenomicsRclient::get_dataset(connection, "dts_abc")
 #' print(datasets@content) # the dataset
 get_dataset <- function(connection, dataset_id){
-  assert_is_connection(connection)
-  assert_token_is_not_expired(connection)
-
-  if(dataset_id == "")
-  {
-    msg = stringr::str_interp("dataset_id cannot be empty!")
-    stop(msg)
-  }
-
   url <- paste(connection@base_url, "dataset/api/v1/datasets/", dataset_id, sep="")
-
-  headers <- get_default_headers(connection)
-  response <- httr::GET(url, headers, query=list(includeHateoas="true"))
-
-  if (response["status_code"] == 404) {
-    stop(stringr::str_interp("The dataset '${dataset_id}' was not found on the server"),
-      call. = FALSE
-    )
- }
-
-  stop_for_status(response)
-
-  if (http_type(response) != "application/json") {
-    stop("API did not return json", call. = FALSE)
-  }
-
-  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
-  dataset_id <- parsed[["dataset_id"]]
-  result <- new("FGResponse", path = url, content = parsed, DataType="Dataset", Id=dataset_id )
+  result <- get_data(connection, dataset_id, url, "dataset")
+  return(result)
 }
 
 #' Downloads the whole dataset content as a zip file to the specified folder
@@ -177,7 +132,7 @@ download_dataset <- function(connection, dataset_id, folder_path){
 #'                            "Entrez",
 #'                            optional )
 #'
-#'  status <- fastgenomicsRclient::poll_for_upload_to_complete(connection, result, 1 ) # validation messages are shown as messages
+#'  status <- fastgenomicsRclient::poll_dataset_until_validated(connection, result, 1 ) # validation messages are shown as messages
 #'  print(status) # should be TRUE
 create_dataset <- function(connection, title, description, short_description, organism_id, matrix_path , matrix_format, gene_nomenclature, optional_parameters=NULL)
 {
@@ -268,14 +223,14 @@ create_dataset <- function(connection, title, description, short_description, or
 #'
 #' @examples
 #' See create_dataset example
-poll_for_upload_to_complete <- function(connection, dataset_id, poll_intervall=10){
+poll_dataset_until_validated <- function(connection, dataset_id, poll_intervall=10){
   assert_is_connection(connection)
   assert_token_is_not_expired(connection)
   if (is(dataset_id, "FGResponse"))
   {
     dtype <- dataset_id@DataType
-    if (!dtype == "Dataset"){
-      stop(stringr::str_interp("Only FgResponse with a DataType of 'Dataset' can be polled! This is a ${dtype}"))
+    if (!dtype == "dataset"){
+      stop(stringr::str_interp("Only FgResponse with a DataType of 'dataset' can be polled! This is a ${dtype}"))
     }
     dataset_id <- dataset_id@Id
   }

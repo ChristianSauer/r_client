@@ -182,7 +182,7 @@ test_that("poll: works", {
                            "sparse_cell_gene_expression",
                            "Entrez" )
 
-  expect_true(poll_for_upload_to_complete(default_conn, result, 1 ))
+  expect_true(poll_dataset_until_validated(default_conn, result, 1 ))
 })
 
 test_that("poll: can cope with failure", {
@@ -197,5 +197,5 @@ test_that("poll: can cope with failure", {
                            "sparse_cell_gene_expression",
                            "Entrez")
 
-  expect_false(poll_for_upload_to_complete(default_conn, result, 1 ))
+  expect_false(poll_dataset_until_validated(default_conn, result, 1 ))
 })

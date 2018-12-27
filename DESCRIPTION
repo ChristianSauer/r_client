@@ -16,7 +16,8 @@ Imports:
     stringr,
     jsonlite,
     installr,
-    lubridate
+    lubridate,
+    uuid (>= 0.1.2)
 Suggests: 
     testthat
 RoxygenNote: 6.1.1
