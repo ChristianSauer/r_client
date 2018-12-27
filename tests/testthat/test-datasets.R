@@ -101,12 +101,31 @@ test_that("create: matrix path must be valid", {
 test_that("create: works", {
   default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   result <- create_dataset(default_conn, "R client test", "description", "short_description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez" )
-
+  expect_is(result, "FGResponse")
 })
 
-
-test_that("create: fails if title too short", {
+test_that("FGDatasetUploadParameters: can create", {
   default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
-  result <- expect_error(create_dataset(default_conn, "", "description", "short_description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez" ), "abc")
+  data <- new("FGDatasetUploadParameters")
+  expect_is(data, "FGDatasetUploadParameters")
+})
+
+test_that("FGDatasetUploadParameters: batch_column cannot be set if no cell metadata", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  expect_error(new("FGDatasetUploadParameters", batch_column="something" ), " If batch_column is set, you need to provide a file containing cell_metatadata, too!")
 
 })
+
+test_that("create: optional parameters must be FGDatasetUploadParameters", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  optional <- "BLA"
+  expect_error(create_dataset(default_conn, "R client test", "description", "short_description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez",  optional) , "the optional_parameters need to be either NULL or a FGDatasetUploadParameters object")
+})
+
+test_that("FGDatasetUploadParameters: validates technology", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  optional <- FGDatasetUploadParameters(technology = "invalid_tech")
+  expect_error(create_dataset(default_conn, "R client test", "description", "short_description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez",  optional) , "The Technology 'invalid_tech is unknown. Choose one of")
+
+})
+
