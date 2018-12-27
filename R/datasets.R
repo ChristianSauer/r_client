@@ -153,8 +153,6 @@ create_dataset <- function(connection, title, description, short_description, or
 
   response <- httr::POST(url, headers, body = body )
 
-  # todo poll upload status
-
   if (response["status_code"] == 422) {
     # handle errors in the upload, e.g. invalid datatypes
     parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)

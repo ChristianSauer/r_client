@@ -196,6 +196,6 @@ test_that("poll: can cope with failure", {
                            "./matrixWithError.tsv" ,
                            "sparse_cell_gene_expression",
                            "Entrez")
-  browser()
+
   expect_false(poll_for_upload_to_complete(default_conn, result, 1 ))
 })
