@@ -15,6 +15,7 @@ Imports:
     jose,
     stringr,
     jsonlite,
-    installr
+    installr,
+    lubridate
 Suggests: 
     testthat

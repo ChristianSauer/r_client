@@ -3,6 +3,7 @@ library(stringr)
 library(httr)
 library(jsonlite)
 library(installr)
+library(lubridate)
 
 scopes = list("All", "Public", "Private")
 
@@ -166,12 +167,76 @@ create_dataset <- function(connection, title, description, short_description, or
     return(error)
   }
 
-  stop_for_status(response) # abort on all other errors
+  httr::stop_for_status(response) # abort on all other errors
 
   parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
   dataset_id <- parsed[["dataset_id"]]
   result <-new("FGResponse", path = url, content = parsed, DataType="Dataset", Id=dataset_id )
   return(result)
+}
+
+poll_for_upload_to_complete <- function(connection, dataset_id, poll_intervall=10){
+  assert_is_connection(connection)
+  assert_token_is_not_expired(connection)
+  if (is(dataset_id, "FGResponse"))
+  {
+    dtype <- dataset_id@DataType
+    if (!dtype == "Dataset"){
+      stop(stringr::str_interp("Only FgResponse with a DataType of 'Dataset' can be polled! This is a ${dtype}"))
+    }
+    dataset_id <- dataset_id@Id
+  }
+
+  if (!is.character(dataset_id))
+  {
+    stop(stringr::str_interp("dataset_id can be either a character vector or a FgResponse object."))
+  }
+
+  headers <- get_default_headers(connection)
+  url <-  paste(connection@base_url, "dataset/api/v1/datasets/", dataset_id, "/status", sep="")
+  last_check <- lubridate::ymd("2010/03/17") # something old
+  while (TRUE) {
+    Sys.sleep(poll_intervall)
+    response <- httr::GET(url, headers)
+    httr::stop_for_status(response)
+
+    parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+
+
+    for (msg in parsed) {
+      msg_time <- lubridate::as_datetime(msg[["timestamp"]], tz="UTC")
+      if (msg_time > last_check){
+        status <- msg[["status"]]
+        file_name <- msg[["file_name"]]
+        msg_text <- msg[["msg"]]
+
+        if (status == "Error"){
+          warning(stringr::str_interp("${msg_time} | ${status} | ${file_name} | ${msg_text}"))
+        }
+        else{
+          message(stringr::str_interp("${msg_time} | ${status} | ${file_name} | ${msg_text}"))
+        }
+
+      }
+    }
+
+    newest_message <- parsed[[length(parsed)]]
+    if (newest_message[["status"]] == "Ready")
+    {
+      # success!
+      return(TRUE)
+    }
+
+    if (newest_message[["status"]] == "Rejected")
+    {
+      # error!
+      warning(stringr::str_interp("There where upload errors. Call get_dataset with the id of this dataset to obtain more information."))
+      return(FALSE)
+    }
+
+    last_check <- lubridate::now(tz="UTC")
+  }
+
 }
 
 get_valid_gene_nomenclatures = function(connection){
