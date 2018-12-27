@@ -38,7 +38,7 @@ get_dataset <- function(connection, dataset_id){
 
   if(dataset_id == "")
   {
-    msg = str_interp("dataset_id cannot be empty!")
+    msg = stringr::str_interp("dataset_id cannot be empty!")
     stop(msg)
   }
 
@@ -48,7 +48,7 @@ get_dataset <- function(connection, dataset_id){
   response <- httr::GET(url, headers, query=list(includeHateoas="true"))
 
   if (response["status_code"] == 404) {
-    stop(str_interp("The dataset '${dataset_id}' was not found on the server"),
+    stop(stringr::str_interp("The dataset '${dataset_id}' was not found on the server"),
       call. = FALSE
     )
  }
@@ -84,7 +84,7 @@ download_dataset <- function(connection, dataset_id, folder_path){
 
   if (download_link == "")
   {
-    msg = str_interp("No download link found, something is wrong. Please contact us.")
+    msg = stringr::str_interp("No download link found, something is wrong. Please contact us.")
     stop(msg)
   }
 
@@ -140,7 +140,7 @@ create_dataset <- function(connection, title, description, short_description, or
   url <-  paste(connection@base_url, "dataset/api/v1/datasets", sep="")
 
   body = list(
-    matrix  = upload_file(matrix_path),
+    matrix  = httr::upload_file(matrix_path),
                           title = title,
                           description = description,
                           short_description = short_description,
@@ -152,11 +152,10 @@ create_dataset <- function(connection, title, description, short_description, or
 
   response <- httr::POST(url, headers, body = body )
 
-  # todo optional parameters
   # todo poll upload status
-  # todo handle error ase
 
   if (response["status_code"] == 422) {
+    # handle errors in the upload, e.g. invalid datatypes
     parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
     validation_errors <- parsed[["validation_errors"]]
     warning(stringr::str_interp("Upload of dataset failed due to these errors: ${validation_errors}"),
@@ -167,7 +166,8 @@ create_dataset <- function(connection, title, description, short_description, or
     return(error)
   }
 
-  stop_for_status(response)
+  stop_for_status(response) # abort on all other errors
+
   parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
   dataset_id <- parsed[["dataset_id"]]
   result <-new("FGResponse", path = url, content = parsed, DataType="Dataset", Id=dataset_id )
@@ -202,158 +202,3 @@ get_info <- function(connection, url){
   data = lapply(parsed, function(x){ return(x[["key"]])})
   return(data)
 }
-
-check_FGDatasetUploadParameters <- function(object) {
-  errors <- character()
-  # technology check needs the connection, chec therefore done later.
-  # same for current_normalization_status
-
-  if (object@batch_column != "" && object@cell_metadata == "") {
-    msg <- stringr::str_interp("If batch_column is set, you need to provide a file containing cell_metatadata, too!")
-    errors <- c(errors, msg)
-  }
-
-
-  if (object@cell_metadata != "" && !file.exists(object@cell_metadata)) {
-    msg <- stringr::str_interp("The given cell metadata file '${object@cell_metadata}' doe not exist!")
-    errors <- c(errors, msg)
-  }
-
-  if (object@gene_metadata != "" && !file.exists(object@gene_metadata)) {
-    msg <- stringr::str_interp("The given gene metadata file '${object@gene_metadata}' doe not exist!")
-    errors <- c(errors, msg)
-  }
-
-  if (length(errors) == 0) TRUE else errors
-}
-
-setClass("FGResponse",
-         slots = c(
-           content  = "list",
-           path  = "character",
-           response   = "list",
-           DataType = "character",
-           Id = "character"
-         )
-)
-
-setClass("FGErrorResponse",
-         slots = c(
-           content  = "list",
-           path  = "character",
-           validation_errors = "list"
-         )
-)
-
-setClass("FGDatasetUploadParameters",
-         slots = c(
-           license  = "character",
-           web_link  = "character",
-           notes   = "character",
-           citation = "character",
-           technology = "character",
-           batch_column = "character",
-           current_normalization_status = "character",
-           cell_metadata = "character",
-           gene_metadata = "character"
-         ),
-         validity = check_FGDatasetUploadParameters
-
-)
-
-
-FGDatasetUploadParameters <- function( license  = "",
-                                       web_link  = "",
-                                       notes   = "",
-                                       citation = "",
-                                       technology = "",
-                                       batch_column = "",
-                                       current_normalization_status = "",
-                                       cell_metadata = "",
-                                       gene_metadata = "") {
-
-  new("FGDatasetUploadParameters",
-      license=license,
-      web_link=web_link,
-      notes=notes,
-      citation=citation,
-      technology=technology,
-      batch_column=batch_column,
-      current_normalization_status=current_normalization_status,
-      cell_metadata=cell_metadata,
-      gene_metadata=gene_metadata)
-}
-
-get_data_from_FGDatasetUploadParameters <- function(object, connection){
-              data <- list()
-              if (!object@license == "")
-              {
-                data["license"] <- object@license
-              }
-
-              if (!object@web_link == "")
-              {
-                data["web_link"] <- object@web_link
-              }
-
-              if (!object@notes == "")
-              {
-                data["notes"] <- object@notes
-              }
-
-              if (!object@citation == "")
-              {
-                data["citation"] <- object@citation
-              }
-
-              if (!object@technology == "")
-              {
-                technologies <- get_valid_technologies(connection)
-
-                if (!object@technology %in% technologies)
-                {
-                  str = paste(as.character(technologies), collapse=", ")
-                  stop(stringr::str_interp("The Technology '${object@technology} is unknown. Choose one of: ${str}' "))
-                }
-
-                data["technology"] <- object@technology
-              }
-
-              if (!object@batch_column == "")
-              {
-                data["batch_column"] <- object@batch_column
-              }
-
-              if (!object@current_normalization_status == "")
-              {
-                cns <- get_valid_current_normalization_status(connection)
-
-                if (!object@current_normalization_status %in% cns)
-                {
-                  str = paste(as.character(cns), collapse=", ")
-                  stop(stringr::str_interp("The current_normalization_status '${object@current_normalization_status} is unknown. Choose one of: ${str}' "))
-                }
-
-                data["current_normalization_status"] <- object@current_normalization_status
-              }
-
-              if (!object@cell_metadata == "")
-              {
-                data[["cell_metadata"]] = httr::upload_file(object@cell_metadata)
-              }
-
-              if (!object@gene_metadata == "")
-              {
-                data[["gene_metadata"]] <- httr::upload_file(object@gene_metadata)
-              }
-
-              return(data)
-          }
-
-setMethod("show", "FGResponse", function(object) {
-  cat(is(object)[[1]], "\n",
-      "  DataType: ", object@DataType, "\n",
-      "  Id:  ", object@Id, "\n",
-      sep = ""
-  )
-})
