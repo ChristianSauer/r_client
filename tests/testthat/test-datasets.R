@@ -106,13 +106,13 @@ test_that("create: works", {
 
 test_that("FGDatasetUploadParameters: can create", {
   default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
-  data <- new("FGDatasetUploadParameters")
+  data <- FGDatasetUploadParameters()
   expect_is(data, "FGDatasetUploadParameters")
 })
 
 test_that("FGDatasetUploadParameters: batch_column cannot be set if no cell metadata", {
   default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
-  expect_error(new("FGDatasetUploadParameters", batch_column="something" ), " If batch_column is set, you need to provide a file containing cell_metatadata, too!")
+  expect_error(FGDatasetUploadParameters("FGDatasetUploadParameters", batch_column="something" ), " If batch_column is set, you need to provide a file containing cell_metatadata, too!")
 
 })
 
@@ -129,3 +129,26 @@ test_that("FGDatasetUploadParameters: validates technology", {
 
 })
 
+test_that("create: works with optional parameters", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  optional <- FGDatasetUploadParameters(
+                                        license ="MIT",
+                                        technology = "Smart-Seq",
+                                        web_link="https://example.com",
+                                        notes="This is a TEST",
+                                        citation="FG et al",
+                                        batch_column="sample",
+                                        current_normalization_status="Counts",
+                                        cell_metadata="./cell_metadata.tsv",
+                                        gene_metadata="./gene_metadata.tsv"  )
+  result <- create_dataset(default_conn,
+                           "R client test",
+                           "description",
+                           "short_description",
+                           9606,
+                           "./matrix.tsv" ,
+                           "sparse_cell_gene_expression",
+                           "Entrez",
+                           optional )
+  expect_is(result, "FGResponse")
+})

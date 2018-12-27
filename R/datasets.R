@@ -133,7 +133,7 @@ create_dataset <- function(connection, title, description, short_description, or
     {
       stop("the optional_parameters need to be either NULL or a FGDatasetUploadParameters object. Call new('FGDatasetUploadParameters', ..) to obtain such an object.")
     }
-    optional_data <<- get_data_from_FGDatasetUploadParameters(optional_parameters, connection)
+    optional_data <- get_data_from_FGDatasetUploadParameters(optional_parameters, connection)
   }
 
   headers <- get_default_headers(connection)
@@ -155,7 +155,6 @@ create_dataset <- function(connection, title, description, short_description, or
   # todo optional parameters
   # todo poll upload status
   # todo handle error ase
-  browser()
   stop_for_status(response)
   parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
   dataset_id <- parsed[["dataset_id"]]
@@ -192,7 +191,6 @@ get_info <- function(connection, url){
 }
 
 check_FGDatasetUploadParameters <- function(object) {
-  browser()
   errors <- character()
   # technology check needs the connection, chec therefore done later.
   # same for current_normalization_status
@@ -229,7 +227,7 @@ setClass("FGResponse",
 setClass("FGDatasetUploadParameters",
          slots = c(
            license  = "character",
-           Web_link  = "character",
+           web_link  = "character",
            notes   = "character",
            citation = "character",
            technology = "character",
@@ -240,45 +238,51 @@ setClass("FGDatasetUploadParameters",
          ),
          validity = check_FGDatasetUploadParameters
 
-) -> FGDatasetUploadParameters
+)
 
-setMethod("initialize", "FGDatasetUploadParameters",
-          function(.Object, ...) {
-            .Object@license  = ""
-            .Object@Web_link  = ""
-            .Object@notes   = ""
-            .Object@citation = ""
-            .Object@technology = ""
-            .Object@batch_column = ""
-            .Object@current_normalization_status = ""
-            .Object@cell_metadata = ""
-            .Object@gene_metadata = ""
 
-            .Object <- callNextMethod()
-            return(.Object)
-          })
+FGDatasetUploadParameters <- function( license  = "",
+                                       web_link  = "",
+                                       notes   = "",
+                                       citation = "",
+                                       technology = "",
+                                       batch_column = "",
+                                       current_normalization_status = "",
+                                       cell_metadata = "",
+                                       gene_metadata = "") {
+
+  new("FGDatasetUploadParameters",
+      license=license,
+      web_link=web_link,
+      notes=notes,
+      citation=citation,
+      technology=technology,
+      batch_column=batch_column,
+      current_normalization_status=current_normalization_status,
+      cell_metadata=cell_metadata,
+      gene_metadata=gene_metadata)
+}
 
 get_data_from_FGDatasetUploadParameters <- function(object, connection){
               data <- list()
-
               if (!object@license == "")
               {
-                data[license] = object@license
+                data["license"] <- object@license
               }
 
-              if (!object@Web_link == "")
+              if (!object@web_link == "")
               {
-                data[Web_link] = object@Web_link
+                data["web_link"] <- object@web_link
               }
 
               if (!object@notes == "")
               {
-                data[notes] = object@notes
+                data["notes"] <- object@notes
               }
 
               if (!object@citation == "")
               {
-                data[citation] = object@citation
+                data["citation"] <- object@citation
               }
 
               if (!object@technology == "")
@@ -291,12 +295,12 @@ get_data_from_FGDatasetUploadParameters <- function(object, connection){
                   stop(stringr::str_interp("The Technology '${object@technology} is unknown. Choose one of: ${str}' "))
                 }
 
-                data[technology] = object@technology
+                data["technology"] <- object@technology
               }
 
               if (!object@batch_column == "")
               {
-                data[batch_column] = object@batch_column
+                data["batch_column"] <- object@batch_column
               }
 
               if (!object@current_normalization_status == "")
@@ -309,17 +313,17 @@ get_data_from_FGDatasetUploadParameters <- function(object, connection){
                   stop(stringr::str_interp("The current_normalization_status '${object@current_normalization_status} is unknown. Choose one of: ${str}' "))
                 }
 
-                data[current_normalization_status] = object@current_normalization_status
+                data["current_normalization_status"] <- object@current_normalization_status
               }
 
               if (!object@cell_metadata == "")
               {
-                data[cell_metadata] = httr::upload_file(object@cell_metadata)
+                data[["cell_metadata"]] = httr::upload_file(object@cell_metadata)
               }
 
               if (!object@gene_metadata == "")
               {
-                data[gene_metadata] = httr::upload_file(object@gene_metadata)
+                data[["gene_metadata"]] <- httr::upload_file(object@gene_metadata)
               }
 
               return(data)
