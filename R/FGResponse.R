@@ -1,3 +1,5 @@
+library(httr)
+setOldClass("response")
 #' A FG response
 #'
 #' @slot content The data
@@ -15,7 +17,7 @@ setClass("FGResponse",
          slots = c(
            content  = "list",
            path  = "character",
-           response   = "list",
+           response   = "response",
            DataType = "character",
            Id = "character"
          )

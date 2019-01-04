@@ -115,7 +115,7 @@ create_app <- function(connection, source_image_name, image_name="", registry=""
 
   parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
   dataset_id <- parsed[["image_name"]]
-  result <-new("FGResponse", path = url, content = parsed, DataType="app", Id=dataset_id )
+  result <-new("FGResponse", path = url, content = parsed, DataType="app", Id=dataset_id, response=response )
   return(result)
 }
 

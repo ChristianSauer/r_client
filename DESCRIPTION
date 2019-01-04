@@ -17,7 +17,8 @@ Imports:
     jsonlite,
     installr,
     lubridate,
-    uuid (>= 0.1.2)
+    uuid (>= 0.1.2),
+    readr
 Suggests: 
     testthat
 RoxygenNote: 6.1.1

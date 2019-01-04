@@ -25,7 +25,7 @@ get_data_list <- function(connection, scope, url, data_type, queries=list()){
 
   parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
   id <- "" #  we do have multiple objects, so no id
-  result <- new("FGResponse", path = url, content = parsed, DataType=stringr::str_interp("List of ${data_type}"), Id=id )
+  result <- new("FGResponse", path = url, content = parsed, DataType=stringr::str_interp("List of ${data_type}"), Id=id, response=response )
   return(result)
 }
 
@@ -51,5 +51,5 @@ get_data <- function(connection, object_id, url, data_type, queries=list(), addi
   }
 
   parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
-  result <- new("FGResponse", path = url, content = parsed, DataType=data_type, Id=object_id )
+  result <- new("FGResponse", path = url, content = parsed, DataType=data_type, Id=object_id, response=response )
 }

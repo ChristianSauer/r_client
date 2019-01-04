@@ -35,7 +35,6 @@ setClass("FGDatasetUploadParameters",
            gene_metadata = "character"
          ),
          validity = check_FGDatasetUploadParameters
-
 )
 
 

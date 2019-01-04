@@ -206,7 +206,7 @@ create_dataset <- function(connection, title, description, short_description, or
 
   parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
   dataset_id <- parsed[["dataset_id"]]
-  result <-new("FGResponse", path = url, content = parsed, DataType="Dataset", Id=dataset_id )
+  result <-new("FGResponse", path = url, content = parsed, DataType="dataset", Id=dataset_id, response=response )
   return(result)
 }
 
