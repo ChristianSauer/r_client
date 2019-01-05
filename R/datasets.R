@@ -16,7 +16,7 @@ scopes = list("All", "Public", "Private")
 #'
 #' @return A FGResponse object
 #' @export
-#'
+
 #' @examples
 #' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Beaer ey...")
 #' datasets <- fastgenomicsRclient::get_datasets(connection)

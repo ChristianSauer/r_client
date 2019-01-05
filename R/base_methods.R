@@ -19,7 +19,7 @@ get_data_list <- function(connection, scope, url, data_type, queries=list()){
   response <- httr::GET(url, headers, query=c(list(scope=scope), queries))
   httr::stop_for_status(response)
 
-  if (http_type(response) != "application/json") {
+  if (httr::http_type(response) != "application/json") {
     stop("API did not return json", call. = FALSE)
   }
 
