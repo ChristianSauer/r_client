@@ -17,13 +17,13 @@ get_data_list <- function(connection, scope, url, data_type, queries=list()){
 
   headers <- get_default_headers(connection)
   response <- httr::GET(url, headers, query=c(list(scope=scope), queries))
-  stop_for_status(response)
+  httr::stop_for_status(response)
 
   if (http_type(response) != "application/json") {
     stop("API did not return json", call. = FALSE)
   }
 
-  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+  parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
   id <- "" #  we do have multiple objects, so no id
   result <- new("FGResponse", path = url, content = parsed, DataType=stringr::str_interp("List of ${data_type}"), Id=id, response=response )
   return(result)
@@ -44,12 +44,12 @@ get_data <- function(connection, object_id, url, data_type, queries=list(), addi
     )
   }
 
-  stop_for_status(response)
+  httr::stop_for_status(response)
 
-  if (http_type(response) != "application/json") {
+  if (httr::http_type(response) != "application/json") {
     stop("API did not return json", call. = FALSE)
   }
 
-  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+  parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
   result <- new("FGResponse", path = url, content = parsed, DataType=data_type, Id=object_id, response=response )
 }

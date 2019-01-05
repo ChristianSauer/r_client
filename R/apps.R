@@ -98,7 +98,7 @@ create_app <- function(connection, source_image_name, image_name="", registry=""
 
   response <- httr::POST(url, headers, body = body, encode = "json")
   if (response["status_code"] == 422) {
-    parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+    parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
 
     error <- new("FGValidationProblem",
                  errors= parsed[["errors"]],
@@ -113,7 +113,7 @@ create_app <- function(connection, source_image_name, image_name="", registry=""
 
   httr::stop_for_status(response) # abort on all other errors
 
-  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+  parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
   dataset_id <- parsed[["image_name"]]
   result <-new("FGResponse", path = url, content = parsed, DataType="app", Id=dataset_id, response=response )
   return(result)
@@ -157,7 +157,7 @@ poll_app_until_validated <- function(connection, app_id, poll_intervall=10){
     response <- httr::GET(url, headers)
     httr::stop_for_status(response)
 
-    parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+    parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
 
 
     for (msg in parsed[["validation_messages"]]) {

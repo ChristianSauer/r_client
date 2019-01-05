@@ -64,7 +64,7 @@ get_dataset <- function(connection, dataset_id){
 download_dataset <- function(connection, dataset_id, folder_path){
   if (!dir.exists(folder_path))
   {
-    msg = str_interp("The folder '${folder_path}' does not exist, please create it")
+    msg = stringr::str_interp("The folder '${folder_path}' does not exist, please create it")
     stop(msg)
   }
 
@@ -87,10 +87,11 @@ download_dataset <- function(connection, dataset_id, folder_path){
 
  url <- paste(substr(connection@base_url, 1, nchar(connection@base_url)-1), download_link, sep="")
  headers <- get_default_headers(connection)
- headers["output"] = write_disk(file.path(folder_path, str_interp("${dataset_id}.zip")))["output"]
+ headers["output"] = httr::write_disk(file.path(folder_path, stringr::str_interp("${dataset_id}.zip")))["output"]
+ headers <- c(headers, httr::progress())
  response <- httr::GET(url, headers)
 
- stop_for_status(response)
+ httr::stop_for_status(response)
 }
 
 #' Creates a new dataset on fastgenomics
@@ -175,6 +176,7 @@ create_dataset <- function(connection, title, description, short_description, or
   }
 
   headers <- get_default_headers(connection)
+  headers <- c(headers, httr::progress("up")) # adds a nice progress bar
   url <-  paste(connection@base_url, "dataset/api/v1/datasets", sep="")
 
   body = list(
@@ -192,7 +194,7 @@ create_dataset <- function(connection, title, description, short_description, or
 
   if (response["status_code"] == 422) {
     # handle errors in the upload, e.g. invalid datatypes
-    parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+    parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
     validation_errors <- parsed[["validation_errors"]]
     warning(stringr::str_interp("Upload of dataset failed due to these errors: ${validation_errors}"),
             call. = FALSE
@@ -204,7 +206,7 @@ create_dataset <- function(connection, title, description, short_description, or
 
   httr::stop_for_status(response) # abort on all other errors
 
-  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+  parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
   dataset_id <- parsed[["dataset_id"]]
   result <-new("FGResponse", path = url, content = parsed, DataType="dataset", Id=dataset_id, response=response )
   return(result)
@@ -248,7 +250,7 @@ poll_dataset_until_validated <- function(connection, dataset_id, poll_intervall=
     response <- httr::GET(url, headers)
     httr::stop_for_status(response)
 
-    parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+    parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
 
 
     for (msg in parsed) {
@@ -346,8 +348,8 @@ get_info <- function(connection, url){
   headers <- get_default_headers(connection)
   url <- paste(connection@base_url, url, sep="")
   response <- httr::GET(url, headers)
-  stop_for_status(response)
-  parsed <- jsonlite::fromJSON(content(response, "text"), simplifyVector = FALSE)
+  httr::stop_for_status(response)
+  parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
   data = lapply(parsed, function(x){ return(x[["key"]])})
   return(data)
 }
