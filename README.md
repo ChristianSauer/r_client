@@ -8,7 +8,7 @@ You can install the development version like this:
 
 ``` r
 install.packages("devtools")
-ibrary(devtools)
+library(devtools)
 install_github("FASTGenomics/r_client")
 ```
 
