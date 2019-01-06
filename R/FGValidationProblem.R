@@ -10,10 +10,11 @@ library(stringr)
 #' @slot detail  human-readable explanation specific to this occurrence of the problem.
 #' @slot instance A URI reference that identifies the specific occurrence of the problem.
 #'
-#' @return
+#' @return FGValidationProblem
 #' @export
 #'
 #' @examples
+#' None
 setClass("FGValidationProblem",
          slots = c(
            errors  = "list",

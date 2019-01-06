@@ -6,7 +6,7 @@ Authors@R:
            family = "Sauer",
            role = c("aut", "cre"),
            email = "christian.sauer@comma-soft.com")
-Description: Upload, Download datasets and create analysis.
+Description: Upload, Download datasets and create analysis for FASTGenomics
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

@@ -4,6 +4,9 @@
 \name{FGValidationProblem-class}
 \alias{FGValidationProblem-class}
 \title{Encapsulates RFC 7807 Problem details, with the errors field added}
+\value{
+FGValidationProblem
+}
 \description{
 See https://tools.ietf.org/html/rfc7807 for details
 }
@@ -23,3 +26,6 @@ See https://tools.ietf.org/html/rfc7807 for details
 \item{\code{instance}}{A URI reference that identifies the specific occurrence of the problem.}
 }}
 
+\examples{
+None
+}

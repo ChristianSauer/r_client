@@ -61,7 +61,7 @@ get_app <- function(connection, app_id){
 #' @param username The username of the registry, leave blank if no auth is required. FG uses this information ONLY to pull the image, neither username nor password are stored permanently.
 #' @param password The password of the registry, leave blank if no auth is required.
 #'
-#' @return
+#' @return An app or a validation error
 #' @export
 #'
 #' @examples

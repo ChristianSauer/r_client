@@ -20,6 +20,9 @@ create_app(connection, source_image_name, image_name = "",
 
 \item{password}{The password of the registry, leave blank if no auth is required.}
 }
+\value{
+An app or a validation error
+}
 \description{
 Pulls an app from a docker registry (e.g. the docker hub or a private registry) and installs it in FASTGenomics. The image will be pulled by FASTGenomics
 After submitting your app, the app will be validated on the server, this can take a while. The app is usable when the validation has been completed
