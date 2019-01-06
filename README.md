@@ -4,17 +4,33 @@ Connect to any FASTGenomics instance and manipulate / retrieve data.
 
 ## Installation
 
-You can install the released version of fastgenomicsRclient from [CRAN](https://CRAN.R-project.org) with:
+You can install the development version like this:
 
 ``` r
-install.packages("fastgenomicsRclient")
+install.packages("devtools")
+ibrary(devtools)
+install_github("FASTGenomics/r_client")
 ```
+
 
 ## Example
 
 TODO
 
 ``` r
-## basic example code
+## You need to get a bearer token to use this api. 
+## You can get this token at: https://fastgenomics.org/ids/Account/ApiTokenLogin?
+## BEWARE: Never commit this token to a repository or share it otherwise! It can be used to impersonate you
+connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Bearer Token")
+datasets <- fastgenomicsRclient::get_datasets(connection)
+print(datasets@content) # all datasets available to you
 ```
 
+## Run tests
+
+If you want the unit tests of this package, set two envrionment variables
+
+```r
+Sys.setenv(BEARERTOKEN = "YOUR TOKEN")
+Sys.setenv(BASEURL = "URL")
+```

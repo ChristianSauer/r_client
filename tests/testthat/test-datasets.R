@@ -152,3 +152,50 @@ test_that("create: works with optional parameters", {
                            optional )
   expect_is(result, "FGResponse")
 })
+
+test_that("create: shows usefull errors", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+  optional <- FGDatasetUploadParameters(
+    cell_metadata="./test-datasets.R" # <--- should error
+  )
+  result <- create_dataset(default_conn,
+                           "R client test",
+                           "description",
+                           "short_description",
+                           9606,
+                           "./matrix.tsv" ,
+                           "sparse_cell_gene_expression",
+                           "Entrez",
+                           optional )
+  expect_is(result, "FGErrorResponse")
+})
+
+test_that("poll: works", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+
+  result <- create_dataset(default_conn,
+                           "R client test",
+                           "description",
+                           "short_description",
+                           9606,
+                           "./matrix.tsv" ,
+                           "sparse_cell_gene_expression",
+                           "Entrez" )
+
+  expect_true(poll_dataset_until_validated(default_conn, result, 1 ))
+})
+
+test_that("poll: can cope with failure", {
+  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+
+  result <- create_dataset(default_conn,
+                           "R client test",
+                           "description",
+                           "short_description",
+                           9606,
+                           "./matrixWithError.tsv" ,
+                           "sparse_cell_gene_expression",
+                           "Entrez")
+
+  expect_false(poll_dataset_until_validated(default_conn, result, 1 ))
+})
