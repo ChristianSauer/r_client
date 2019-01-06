@@ -121,14 +121,14 @@ download_dataset <- function(connection, dataset_id, folder_path){
 #'                                         citation="FG et al",
 #'                                         batch_column="sample",
 #'                                         current_normalization_status="Counts",
-#'                                         cell_metadata="./cell_metadata.tsv",
-#'                                         gene_metadata="./gene_metadata.tsv"  )
+#'                                         cell_metadata="./cell_metadata.tsv", # you can also use a dataframe directly
+#'                                         gene_metadata="./gene_metadata.tsv"  ) # you can also use a dataframe directly
 #'  result <- fastgenomicsRclient::create_dataset(connection,
 #'                            "R client test",
 #'                            "description",
 #'                            "short_description",
 #'                            9606,
-#'                            "./matrix.tsv" ,
+#'                            "./matrix.tsv" , # you can also use a dataframe directly
 #'                            "sparse_cell_gene_expression",
 #'                            "Entrez",
 #'                            optional )
