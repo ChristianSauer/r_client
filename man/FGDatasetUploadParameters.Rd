@@ -24,15 +24,15 @@ FGDatasetUploadParameters(license = "", web_link = "", notes = "",
 
 \item{current_normalization_status}{The current_normalization_status used to obtain this dataset. call fastgenomicsRclient::get_current_normalization_status to get a list}
 
-\item{cell_metadata}{The path to your cell metadata file, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}
+\item{cell_metadata}{The path to your cell metadata file OR a dataframe, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}
 
-\item{gene_metadata}{The path to your gene metadata, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}
+\item{gene_metadata}{The path to your gene metadata OR a dataframe, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}
 }
 \value{
 class FGDatasetUploadParameters
 }
 \description{
-Get the optional parameters to create a dataset
+If you provide cell or gene metadata via a dataframe, please note that the dataframe is stored on disk in the tempdir of the current R session. As this might get cleaned on exit of R, be cautious when using this from a stored R session.
 }
 \examples{
 optional <- fastgenomicsRclient::FGDatasetUploadParameters(

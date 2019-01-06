@@ -40,6 +40,8 @@ setClass("FGDatasetUploadParameters",
 
 #' Get the optional parameters to create a dataset
 #'
+#'  If you provide cell or gene metadata via a dataframe, please note that the dataframe is stored on disk in the tempdir of the current R session. As this might get cleaned on exit of R, be cautious when using this from a stored R session.
+#'
 #' @param license The license to be used. If the data are owned by yourself, you can use https://creativecommons.org/choose/ to choose a license. If not, you have to find the license used by the dataset, e.g. talk to your supervisor.
 #' @param web_link The website of your dataset.
 #' @param notes Privates notes
@@ -47,8 +49,8 @@ setClass("FGDatasetUploadParameters",
 #' @param technology The technology used to obtain this dataset. call fastgenomicsRclient::get_valid_technologies to get a list
 #' @param batch_column The colum in the cell metadata which holds information about the batch. Can be blank. If not blank, cell_metadata have to be included.
 #' @param current_normalization_status The current_normalization_status used to obtain this dataset. call fastgenomicsRclient::get_current_normalization_status to get a list
-#' @param cell_metadata The path to your cell metadata file, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md
-#' @param gene_metadata The path to your gene metadata, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md
+#' @param cell_metadata The path to your cell metadata file OR a dataframe, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md
+#' @param gene_metadata The path to your gene metadata OR a dataframe, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md
 #'
 #' @return class FGDatasetUploadParameters
 #' @export
@@ -74,6 +76,32 @@ FGDatasetUploadParameters <- function( license  = "",
                                        cell_metadata = "",
                                        gene_metadata = "") {
 
+  cell_metadata_path <- ""
+  if (is.character(cell_metadata)){
+    cell_metadata_path <- cell_metadata
+  }
+  else if (is.data.frame(cell_metadata))
+  {
+    cell_metadata_path <- get_df_as_file(df, "cell_metadata.csv")
+  }
+  else
+  {
+    stop("the given cell_metadata is neither a file path nor a dataframe!")
+  }
+
+  gene_metadata_path <- ""
+  if (is.character(gene_metadata)){
+    gene_metadata_path <- gene_metadata
+  }
+  else if (is.data.frame(gene_metadata))
+  {
+    gene_metadata_path <- get_df_as_file(df, "gene_metadata.csv")
+  }
+  else
+  {
+    stop("the given gene_metadata is neither a file path nor a dataframe!")
+  }
+
   new("FGDatasetUploadParameters",
       license=license,
       web_link=web_link,
@@ -82,8 +110,8 @@ FGDatasetUploadParameters <- function( license  = "",
       technology=technology,
       batch_column=batch_column,
       current_normalization_status=current_normalization_status,
-      cell_metadata=cell_metadata,
-      gene_metadata=gene_metadata)
+      cell_metadata=cell_metadata_path,
+      gene_metadata=gene_metadata_path)
 }
 
 get_data_from_FGDatasetUploadParameters <- function(object, connection){
@@ -146,7 +174,7 @@ get_data_from_FGDatasetUploadParameters <- function(object, connection){
 
   if (!object@gene_metadata == "")
   {
-    data[["gene_metadata"]] <- httr::upload_file(object@gene_metadata)
+    data[["gene_metadata"]] = httr::upload_file(object@gene_metadata)
   }
 
   return(data)

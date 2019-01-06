@@ -5,7 +5,7 @@
 \title{Creates a new dataset on fastgenomics}
 \usage{
 create_dataset(connection, title, description, short_description,
-  organism_id, matrix_path, matrix_format, gene_nomenclature,
+  organism_id, matrix, matrix_format, gene_nomenclature,
   optional_parameters = NULL)
 }
 \arguments{
@@ -19,7 +19,7 @@ create_dataset(connection, title, description, short_description,
 
 \item{organism_id}{The NCBI Taxonomy ID of your dataset. Homo Sapiens: 9606 Mouse: 10090}
 
-\item{matrix_path}{The path to your datafile, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}
+\item{matrix}{The path to your datafile OR a dataframe, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}
 
 \item{matrix_format}{The format of your matrix, see https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md for valid names}
 

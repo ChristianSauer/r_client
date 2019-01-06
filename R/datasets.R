@@ -103,7 +103,7 @@ download_dataset <- function(connection, dataset_id, folder_path){
 #' @param description A description of the dataset, ca be Markdown
 #' @param short_description A oneliner describing your dataset
 #' @param organism_id The NCBI Taxonomy ID of your dataset. Homo Sapiens: 9606 Mouse: 10090
-#' @param matrix_path The path to your datafile, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md
+#' @param matrix The path to your datafile OR a dataframe, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md
 #' @param matrix_format The format of your matrix, see https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md for valid names
 #' @param gene_nomenclature The gene nomenclature to be used, call fastgenomicsRclient::get_valid_gene_nomenclatures to get a list of supported formats
 #' @param optional_parameters Further parameters to be used, eg. gene metadata or cell metadata files. Use fastgenomicsRclient::get_data_from_FGDatasetUploadParameters  to create this parameters.
@@ -135,7 +135,7 @@ download_dataset <- function(connection, dataset_id, folder_path){
 #'
 #'  status <- fastgenomicsRclient::poll_dataset_until_validated(connection, result, 1 ) # validation messages are shown as messages
 #'  print(status) # should be TRUE
-create_dataset <- function(connection, title, description, short_description, organism_id, matrix_path , matrix_format, gene_nomenclature, optional_parameters=NULL)
+create_dataset <- function(connection, title, description, short_description, organism_id, matrix , matrix_format, gene_nomenclature, optional_parameters=NULL)
 {
   assert_is_connection(connection)
   assert_token_is_not_expired(connection)
@@ -157,6 +157,19 @@ create_dataset <- function(connection, title, description, short_description, or
   {
     str = paste(as.character(matrix_formats), collapse=", ")
     stop(stringr::str_interp("The Matrix format '${matrix_format}' is unknown. Choose one of: ${str}' "))
+  }
+
+  matrix_path <- ""
+  if (is.character(matrix)){
+    matrix_path <- matrix
+  }
+  else if (is.data.frame(matrix))
+  {
+    matrix_path <- get_df_as_file(matrix, "matrix.csv")
+  }
+  else
+  {
+    stop("the given matrix is neither a file path nor a dataframe!")
   }
 
   if (!file.exists(matrix_path))
@@ -352,4 +365,23 @@ get_info <- function(connection, url){
   parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
   data = lapply(parsed, function(x){ return(x[["key"]])})
   return(data)
+}
+
+get_df_as_file <- function(df, file_name){
+  column_names <- names(df)
+
+  tempdir <- tempdir()
+  rand_folder <- stringi::stri_rand_strings(n=1, length = 20)[[1]]
+  message(stringr::str_interp("Saving dataframe for '${file_name}' to disk"))
+  tmp_dir <- file.path(tempdir, rand_folder)
+  tmp_file <- file.path(tmp_dir, file_name )
+  dir.create(tmp_dir)
+  write.csv(df, tmp_file, row.names=FALSE)
+
+  message(stringr::str_interp("compressing file '${file_name}', this may take a while"))
+  zip_file <- file.path(tmp_dir, "data.zip")
+  zip(zipfile = zip_file, files=tmp_file, flags="-j")
+
+  message(stringr::str_interp("Compressing ${file_name}' finished"))
+  return(zip_file)
 }
