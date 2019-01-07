@@ -2,7 +2,6 @@ library(methods)
 library(stringr)
 library(httr)
 library(jsonlite)
-library(installr)
 library(lubridate)
 library(curl) # not a dep, imported through httr
 

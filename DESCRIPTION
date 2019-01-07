@@ -15,7 +15,6 @@ Imports:
     jose,
     stringr,
     jsonlite,
-    installr,
     lubridate,
     uuid (>= 0.1.2),
     readr

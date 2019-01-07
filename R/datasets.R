@@ -2,7 +2,6 @@ library(methods)
 library(stringr)
 library(httr)
 library(jsonlite)
-library(installr)
 library(lubridate)
 
 scopes = list("All", "Public", "Private")
@@ -147,9 +146,9 @@ create_dataset <- function(connection, title, description, short_description, or
     stop(stringr::str_interp("The Gene Nomenclature '${gene_nomenclature} is unknown. Choose one of: ${str}' "))
   }
 
-  if (!installr:::check.integer(organism_id))
+  if (!is.numeric(organism_id))
   {
-    stop(stringr::str_interp("The organism id '${organism_id}' is not an integer. Choose Homo Sapiens: 9606 Mouse: 10090"))
+    stop(stringr::str_interp("The organism id '${organism_id}' is not an integer. Valid NCBI Ids are integers, e.g. Homo Sapiens: 9606 Mouse: 10090"))
   }
 
   matrix_formats <- get_valid_matrix_formats(connection)
