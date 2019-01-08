@@ -82,7 +82,7 @@ test_that("create: gene nomenclature must be valid", {
 
 test_that("create: organism_id must be valid", {
   default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
-  expect_error(create_dataset(default_conn, "title", "description", "short_description", "dsgsdfg", "matrix_path" , "matrix_format", "Entrez" ), "The organism id 'dsgsdfg' is not an integer. Choose Homo Sapiens: 9606 Mouse: 10090")
+  expect_error(create_dataset(default_conn, "title", "description", "short_description", "dsgsdfg", "matrix_path" , "matrix_format", "Entrez" ), "The organism id 'dsgsdfg' is not an integer. Valid NCBI Ids are integers, e.g. Homo Sapiens: 9606 Mouse: 10090")
 
 })
 
