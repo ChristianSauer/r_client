@@ -1,8 +1,8 @@
 context("test-workflows")
 context("test-apps")
 
-BEARER_FROM_ENV = Sys.getenv("BEARERTOKEN")
-BASE_URL = Sys.getenv("BASEURL")
+BEARER_FROM_ENV = Sys.getenv("FGBEARERTOKEN")
+BASE_URL = Sys.getenv("FGBASEURL")
 
 test_that("can get workflows successfully", {
   default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)

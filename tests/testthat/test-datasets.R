@@ -1,7 +1,7 @@
 context("test-datasets")
 
-BEARER_FROM_ENV = Sys.getenv("BEARERTOKEN")
-BASE_URL = Sys.getenv("BASEURL")
+BEARER_FROM_ENV = Sys.getenv("FGBEARERTOKEN")
+BASE_URL = Sys.getenv("FGBASEURL")
 
 test_that("scope is valid", {
   default_conn <- new("FGConnection", base_url = "invalid", bearer_token = "invalid")
