@@ -8,7 +8,7 @@ create_app(connection, source_image_name, image_name = "",
   registry = "", username = "", password = "")
 }
 \arguments{
-\item{connection}{The connection to be used, call fastgenomicsRclient::connect to obtain one.}
+\item{connection}{The connection to be used, call \code{\link{connect}} to obtain one.}
 
 \item{source_image_name}{The name of the app image, must inlcude a tag. E.g. yourapp:latest. Must not contain the name of the registry.}
 

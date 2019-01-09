@@ -7,7 +7,7 @@
 get_workflows(connection, scope = "All")
 }
 \arguments{
-\item{connection}{The connection to be used, call fastgenomicsRclient::connect to obtain one.}
+\item{connection}{The connection to be used, call \code{\link{connect}} to obtain one.}
 
 \item{scope}{Filters the workflows by their scope. Possible Values are: 'All': return all workflows, 'Private': Only your personal workflows, 'Public': Only public workflows}
 }

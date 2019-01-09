@@ -7,7 +7,7 @@
 modify_workflow(connection, path_to_workflow, workflow_id)
 }
 \arguments{
-\item{connection}{The connection to be used, call fastgenomicsRclient::connect to obtain one.}
+\item{connection}{The connection to be used, call \code{\link{connect}} to obtain one.}
 
 \item{path_to_workflow}{The file path to the edit model JSON.}
 

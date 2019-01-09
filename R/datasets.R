@@ -10,7 +10,7 @@ scopes = list("All", "Public", "Private")
 #'
 #' This list does not contain rejected datasets, only valid, usable datasets.
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param scope Filters the datasets by their scope. Possible Values are: 'All': return all datasets, 'Private': Only your personal datasets, 'Public': Only public datasets
 #'
 #' @return A FGResponse object
@@ -32,7 +32,7 @@ get_datasets <- function(connection, scope="All"){
 #'
 #' Gets information about a specific dataset. This can also be used to obtain information about a failed dataset upload
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param dataset_id The id of the dataset, usually starting with dts_*****
 #'
 #' @return A FGResponse object
@@ -50,7 +50,7 @@ get_dataset <- function(connection, dataset_id){
 
 #' Downloads the whole dataset content as a zip file to the specified folder
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param dataset_id The id of the dataset, usually starting with dts_*****
 #' @param folder_path Where to store the dataset? Must exist and be writeable
 #'
@@ -95,17 +95,36 @@ download_dataset <- function(connection, dataset_id, folder_path){
 
 #' Creates a new dataset on fastgenomics
 #'
-#' This call will create the dataset, but the validation on the server can take a long time. The dataset cannot be used before the validation is complete. Use fastgenomicsRclient::poll_for_upload_to_complete to wait for this.
+#' This call will create the dataset, but the validation on the server
+#' can take a long time. The dataset cannot be used before the
+#' validation is complete. Use
+#' \code{\link{poll_dataset_until_validated}} to query the server for
+#' the validation status.  For details on what data formats are
+#' supported by FASTGenomics refer to the documentation
+#' \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}{here}.
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call
+#'     \code{\link{connect}} to obtain one.
 #' @param title The Title of the dataset
 #' @param description A description of the dataset, ca be Markdown
 #' @param short_description A oneliner describing your dataset
-#' @param organism_id The NCBI Taxonomy ID of your dataset. Homo Sapiens: 9606 Mouse: 10090
-#' @param matrix The path to your datafile OR a dataframe, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md
-#' @param matrix_format The format of your matrix, see https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md for valid names
-#' @param gene_nomenclature The gene nomenclature to be used, call fastgenomicsRclient::get_valid_gene_nomenclatures to get a list of supported formats
-#' @param optional_parameters Further parameters to be used, eg. gene metadata or cell metadata files. Use fastgenomicsRclient::get_data_from_FGDatasetUploadParameters  to create this parameters.
+#' @param organism_id The NCBI Taxonomy ID of your dataset, passed as
+#'     an integer. Currently supported IDs are 9606 (Homo Sapiens) and
+#'     10090 (Mouse)
+#' @param matrix The path to your datafile in a supported
+#'     \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}{format}
+#'     OR a dataframe.  If it's a data frame it will be saved in a
+#'     temporary location on your hard drive and uploaded as a file.
+#' @param matrix_format The
+#'     \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md#upload-file-structure}{format}
+#'     of your matrix.
+#' @param gene_nomenclature The gene nomenclature to be used, call
+#'     \code{\link{get_valid_gene_nomenclatures}} to get a list of
+#'     supported formats
+#' @param optional_parameters Further parameters to be used, eg. gene
+#'     metadata or cell metadata files. Use
+#'     \code{\link{FGDatasetUploadParameters}} to define these
+#'     parameters.
 #'
 #' @return FGResponse in case of success, FGErrorResponse if the validation failed for any reason.
 #' @export
@@ -173,7 +192,7 @@ create_dataset <- function(connection, title, description, short_description, or
 
   if (!file.exists(matrix_path))
   {
-    stop(stringr::str_interp("The file '${matrix_path}' does not exist. Please provide a valid file!. See https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md for valid file formats "))
+      stop(stringr::str_interp("The file '${matrix_path}' does not exist. Please provide a valid file!. See https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md for valid file formats "))
   }
 
   optional_data <- list()
@@ -226,9 +245,9 @@ create_dataset <- function(connection, title, description, short_description, or
 
 #' Waits for the validation of the dataset to complete.
 #'
-#' Messages and errors are used to show messages. If you need all messages, use fastgenomicsRclient::get_dataset with the id of this dataset
+#' Messages and errors are used to show messages. If you need all messages, use \code{\link{get_dataset}} with the id of this dataset
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param dataset_id The id of the dataset, usually starting with dts_***** OR a FGResponse object
 #' @param poll_intervall The time to wait for a new status update in seconds
 #'
@@ -303,7 +322,7 @@ poll_dataset_until_validated <- function(connection, dataset_id, poll_intervall=
 
 #' Get a list of all supported gene nomenclatures
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #'
 #' @return a list of the valid gene nomenclatures
 #' @export
@@ -316,7 +335,7 @@ get_valid_gene_nomenclatures = function(connection){
 
 #' Get a list of all supported matrix formats
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #'
 #' @return a list of the valid matrix formats
 #' @export
@@ -329,7 +348,7 @@ get_valid_matrix_formats = function(connection){
 
 #' Get a list of all supported technologies
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #'
 #' @return a list of the valid technologies
 #' @export
@@ -342,7 +361,7 @@ get_valid_technologies = function(connection){
 
 #' Get a list of all supported normalization schemes
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #'
 #' @return a list of supported normalization schemes
 #' @export

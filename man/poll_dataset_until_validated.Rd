@@ -7,7 +7,7 @@
 poll_dataset_until_validated(connection, dataset_id, poll_intervall = 10)
 }
 \arguments{
-\item{connection}{The connection to be used, call fastgenomicsRclient::connect to obtain one.}
+\item{connection}{The connection to be used, call \code{\link{connect}} to obtain one.}
 
 \item{dataset_id}{The id of the dataset, usually starting with dts_***** OR a FGResponse object}
 
@@ -17,7 +17,7 @@ poll_dataset_until_validated(connection, dataset_id, poll_intervall = 10)
 TRUE if the validation succeeded, otherweise FALSE
 }
 \description{
-Messages and errors are used to show messages. If you need all messages, use fastgenomicsRclient::get_dataset with the id of this dataset
+Messages and errors are used to show messages. If you need all messages, use \code{\link{get_dataset}} with the id of this dataset
 }
 \examples{
 See create_dataset example

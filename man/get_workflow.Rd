@@ -7,7 +7,7 @@
 get_workflow(connection, workflow_id, fullDetail = FALSE)
 }
 \arguments{
-\item{connection}{The connection to be used, call fastgenomicsRclient::connect to obtain one.}
+\item{connection}{The connection to be used, call \code{\link{connect}} to obtain one.}
 
 \item{workflow_id}{The id of the workflow, usually looks like wf_.....}
 
