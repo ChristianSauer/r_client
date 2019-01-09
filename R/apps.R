@@ -9,7 +9,7 @@ library(curl) # not a dep, imported through httr
 #'
 #' This list does not contain rejected apps, only valid, usable apps
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param scope Filters the apps by their scope. Possible Values are: 'All': return all apps, 'Private': Only your personal apps, 'Public': Only public apps
 #'
 #' @return A FGResponse object
@@ -29,7 +29,7 @@ get_apps <- function(connection, scope="All"){
 
 #' Get an app
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param app_id the id of the app or a FGResponse object
 #'
 #' @return class FGResponse
@@ -53,7 +53,7 @@ get_app <- function(connection, app_id){
 #' After submitting your app, the app will be validated on the server, this can take a while. The app is usable when the validation has been completed
 #' Use poll_app_until_validated to wait for the validation to complete.
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param source_image_name The name of the app image, must inlcude a tag. E.g. yourapp:latest. Must not contain the name of the registry.
 #' @param image_name The name to be used in FASTGenomics, e.g. yourapp:v1. Note that your username is always prepended, e.g. someuser/yourapp:v1.
 #' @param registry The registry to be used, leave blank if you use the docker hub. Do not prepend http(s), egg someregistry.example.com
@@ -120,9 +120,9 @@ create_app <- function(connection, source_image_name, image_name="", registry=""
 
 #' Waits for the validation of the app to complete.
 #'
-#' Messages and errors are used to show messages. If you need all messages, use fastgenomicsRclient::get_app with the id of this app
+#' Messages and errors are used to show messages. If you need all messages, use \code{\link{get_app}} with the id of this app
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param dataset_id The app_id of the app OR a FGResponse object
 #' @param poll_intervall The time to wait for a new status update in seconds
 #'

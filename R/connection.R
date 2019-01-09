@@ -25,8 +25,9 @@ connect <- function(base_url, bearer_token) {
     stop("base_url cannot be empty!")
   }
 
-  if (!endsWith(base_url, "/")) {
-    stop(paste("base_url should look like this: 'https://fastgenomics.org/', but is: ", base_url))
+  if (!endsWith(base_url, "/")){
+      base_url = paste(base_url, "/", sep="")
+      message("base_url is missing '/' at the end, appending...")
   }
 
   success <- httr::GET(base_url) # throws error if url invalid

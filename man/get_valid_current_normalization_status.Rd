@@ -7,7 +7,7 @@
 get_valid_current_normalization_status(connection)
 }
 \arguments{
-\item{connection}{The connection to be used, call fastgenomicsRclient::connect to obtain one.}
+\item{connection}{The connection to be used, call \code{\link{connect}} to obtain one.}
 }
 \value{
 a list of supported normalization schemes

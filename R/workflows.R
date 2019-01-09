@@ -4,7 +4,7 @@ library(readr)
 #'
 #' This list does only contain valid, usable datasets
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param scope Filters the workflows by their scope. Possible Values are: 'All': return all workflows, 'Private': Only your personal workflows, 'Public': Only public workflows
 #'
 #' @return A FGResponse object
@@ -26,7 +26,7 @@ get_workflows <- function(connection, scope="All"){
 #'
 #' This model is not suitable for editing OR as base template for new workflows, call get_edit_model_of_workflow to obtain such a workflow!
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param workflow_id The id of the workflow, usually looks like wf_.....
 #' @param fullDetail If TRUE, the calculationflow, screenflow and parameters are included.
 #'
@@ -49,7 +49,7 @@ get_workflow <-  function(connection, workflow_id, fullDetail=FALSE){
 #'
 #' This model is suitable to be used as a base for new workflows.
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param workflow_id The id of the workflow, usually looks like wf_.....
 #'
 #' @return A FGResponse object if no errors, otherwisea a FGErrorResponse
@@ -71,7 +71,7 @@ get_edit_model_of_workflow <- function(connection, workflow_id){
 #'
 #' This method expects a file with valid json as input, since creating a workflow is best done by hand. Use a good editor like VS Code for this task.
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param path_to_workflow The file path to the edit model JSON.
 #'
 #' @return A FGResponse object if no errors, otherwisea a FGErrorResponse
@@ -125,7 +125,7 @@ create_workflow <- function(connection, path_to_workflow){
 #' Your modifications will not affect any existing analyses or analysistemplates. A successfull modification will increase the version field of the workflow.
 #' You can update an analysistemplate through AnalysisApi: /api/v1/analysistemplates/{id}/update_workflow
 #'
-#' @param connection The connection to be used, call fastgenomicsRclient::connect to obtain one.
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param path_to_workflow The file path to the edit model JSON.
 #' @param workflow_id The id of the workflow to be updated
 #'

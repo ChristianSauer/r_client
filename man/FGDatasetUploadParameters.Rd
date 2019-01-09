@@ -18,15 +18,15 @@ FGDatasetUploadParameters(license = "", web_link = "", notes = "",
 
 \item{citation}{How to cite this dataset}
 
-\item{technology}{The technology used to obtain this dataset. call fastgenomicsRclient::get_valid_technologies to get a list}
+\item{technology}{The technology used to obtain this dataset. call \code{\link{get_valid_technologies}} to get a list}
 
 \item{batch_column}{The colum in the cell metadata which holds information about the batch. Can be blank. If not blank, cell_metadata have to be included.}
 
-\item{current_normalization_status}{The current_normalization_status used to obtain this dataset. call fastgenomicsRclient::get_current_normalization_status to get a list}
+\item{current_normalization_status}{The current_normalization_status used to obtain this dataset. call \code{\link{get_valid_current_normalization_status}} to get a list}
 
-\item{cell_metadata}{The path to your cell metadata file OR a dataframe, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}
+\item{cell_metadata}{The path to your cell metadata file OR a dataframe, for valid formats see \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}{here}.}
 
-\item{gene_metadata}{The path to your gene metadata OR a dataframe, for valid formats see: https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}
+\item{gene_metadata}{The path to your gene metadata OR a dataframe, for valid formats see \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}{here}.}
 }
 \value{
 class FGDatasetUploadParameters

@@ -7,7 +7,7 @@
 get_apps(connection, scope = "All")
 }
 \arguments{
-\item{connection}{The connection to be used, call fastgenomicsRclient::connect to obtain one.}
+\item{connection}{The connection to be used, call \code{\link{connect}} to obtain one.}
 
 \item{scope}{Filters the apps by their scope. Possible Values are: 'All': return all apps, 'Private': Only your personal apps, 'Public': Only public apps}
 }

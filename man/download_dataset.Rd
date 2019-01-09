@@ -7,7 +7,7 @@
 download_dataset(connection, dataset_id, folder_path)
 }
 \arguments{
-\item{connection}{The connection to be used, call fastgenomicsRclient::connect to obtain one.}
+\item{connection}{The connection to be used, call \code{\link{connect}} to obtain one.}
 
 \item{dataset_id}{The id of the dataset, usually starting with dts_*****}
 

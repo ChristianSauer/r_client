@@ -1,7 +1,5 @@
 library(stringr)
-#' Encapsulates RFC 7807 Problem details, with the errors field added
-#'
-#'  See https://tools.ietf.org/html/rfc7807 for details
+#' Encapsulates \href{https://tools.ietf.org/html/rfc7807}{RFC 7807 Problem details}, with the errors field added
 #'
 #' @slot errors List of errors, human readable
 #' @slot title A short, human-readable summary of the problem type.

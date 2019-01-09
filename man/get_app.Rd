@@ -7,7 +7,7 @@
 get_app(connection, app_id)
 }
 \arguments{
-\item{connection}{The connection to be used, call fastgenomicsRclient::connect to obtain one.}
+\item{connection}{The connection to be used, call \code{\link{connect}} to obtain one.}
 
 \item{app_id}{the id of the app or a FGResponse object}
 }

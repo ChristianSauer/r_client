@@ -3,12 +3,12 @@
 \docType{class}
 \name{FGValidationProblem-class}
 \alias{FGValidationProblem-class}
-\title{Encapsulates RFC 7807 Problem details, with the errors field added}
+\title{Encapsulates \href{https://tools.ietf.org/html/rfc7807}{RFC 7807 Problem details}, with the errors field added}
 \value{
 FGValidationProblem
 }
 \description{
-See https://tools.ietf.org/html/rfc7807 for details
+Encapsulates \href{https://tools.ietf.org/html/rfc7807}{RFC 7807 Problem details}, with the errors field added
 }
 \section{Slots}{
 

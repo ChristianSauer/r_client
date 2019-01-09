@@ -7,7 +7,7 @@
 get_datasets(connection, scope = "All")
 }
 \arguments{
-\item{connection}{The connection to be used, call fastgenomicsRclient::connect to obtain one.}
+\item{connection}{The connection to be used, call \code{\link{connect}} to obtain one.}
 
 \item{scope}{Filters the datasets by their scope. Possible Values are: 'All': return all datasets, 'Private': Only your personal datasets, 'Public': Only public datasets}
 }

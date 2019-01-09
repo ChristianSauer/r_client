@@ -7,7 +7,7 @@
 poll_app_until_validated(connection, app_id, poll_intervall = 10)
 }
 \arguments{
-\item{connection}{The connection to be used, call fastgenomicsRclient::connect to obtain one.}
+\item{connection}{The connection to be used, call \code{\link{connect}} to obtain one.}
 
 \item{poll_intervall}{The time to wait for a new status update in seconds}
 
@@ -17,7 +17,7 @@ poll_app_until_validated(connection, app_id, poll_intervall = 10)
 TRUE if the validation succeeded, otherweise FALSE
 }
 \description{
-Messages and errors are used to show messages. If you need all messages, use fastgenomicsRclient::get_app with the id of this app
+Messages and errors are used to show messages. If you need all messages, use \code{\link{get_app}} with the id of this app
 }
 \examples{
 See create_app example
