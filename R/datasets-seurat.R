@@ -40,11 +40,24 @@ get_sparse_files = function(seurat_obj, zipfiles=TRUE){
         matrix_csv = get_sparse_mat(seurat_obj@data, dir),
         gene_metadata = get_sparse_gene_metadata(gene_ids, dir),
         cell_metadata = get_sparse_cell_metadata(cell_metadata, dir))
+
+    if(zipfiles)
+        files = lapply(files, zip_file)
+
+    return(files)
+}
+
+zip_file = function(file){
+    message(stringr::str_interp("compressing file '${file}', this may take a while..."))
+    zip_file <- paste(c(basename(file), "zip"), collapse=".")
+    zip(zipfile = zip_file, files=file, flags="-j")
+    return(zip_file)
 }
 
 create_dataset_from_seurat <- function(connection, seurat_obj,
                                        gene_nomenclature, organism_id,
                                        title=seurat_obj@project.name,
+                                       zipfiles=TRUE,
                                        description="",
                                        short_description="")
 {
@@ -61,7 +74,7 @@ create_dataset_from_seurat <- function(connection, seurat_obj,
     headers <- c(headers, httr::progress("up")) # adds a nice progress bar
     url <-  paste(connection@base_url, "dataset/api/v1/datasets", sep="")
 
-    files = get_sparse_files(seurat_obj)
+    files = get_sparse_files(seurat_obj, zipfiles=zipfiles)
 
     body = list(
         matrix = httr::upload_file(files[["matrix_csv"]]),
