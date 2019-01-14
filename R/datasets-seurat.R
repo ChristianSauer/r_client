@@ -59,7 +59,8 @@ create_dataset_from_seurat <- function(connection, seurat_obj,
                                        title=seurat_obj@project.name,
                                        zipfiles=TRUE,
                                        description="",
-                                       short_description="")
+                                       short_description="",
+                                       optional_parameters=NULL)
 {
     assert_is_connection(connection)
     assert_token_is_not_expired(connection)
@@ -87,7 +88,16 @@ create_dataset_from_seurat <- function(connection, seurat_obj,
         matrix_format = "sparse_cell_gene_expression",
         gene_nomenclature = gene_nomenclature)
 
-    response <- httr::POST(url, headers, body = body )
+    optional_data <- list()
+
+    if (!is.null(optional_parameters))
+        if (!is(optional_parameters, "FGDatasetUploadParameters"))
+            stop("the optional_parameters need to be either NULL or a FGDatasetUploadParameters object. Call new('FGDatasetUploadParameters', ..) to obtain such an object.")
+        else
+            body <- c(get_data_from_FGDatasetUploadParameters(
+                      optional_parameters, connection), body)
+
+    response <- httr::POST(url, headers, body = body)
 
     if (response["status_code"] == 422) {
                                         # handle errors in the upload, e.g. invalid datatypes
