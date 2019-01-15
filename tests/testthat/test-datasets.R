@@ -111,8 +111,9 @@ test_that("FGDatasetUploadParameters: can create", {
 })
 
 test_that("FGDatasetUploadParameters: batch_column cannot be set if no cell metadata", {
-  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
-  expect_error(FGDatasetUploadParameters("FGDatasetUploadParameters", batch_column="something" ), " If batch_column is set, you need to provide a file containing cell_metatadata, too!")
+    default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+    params = FGDatasetUploadParameters("FGDatasetUploadParameters", batch_column="something" )
+    expect_error(get_data_from_FGDatasetUploadParameters(params), "If batch_column is set, you need to provide a file containing cell_metatadata, too!")
 
 })
 
