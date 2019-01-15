@@ -3,19 +3,13 @@ check_FGDatasetUploadParameters <- function(object) {
   # technology check needs the connection, chec therefore done later.
   # same for current_normalization_status
 
-  if (object@batch_column != "" && object@cell_metadata == "") {
-    msg <- stringr::str_interp("If batch_column is set, you need to provide a file containing cell_metatadata, too!")
-    errors <- c(errors, msg)
-  }
-
-
   if (object@cell_metadata != "" && !file.exists(object@cell_metadata)) {
-    msg <- stringr::str_interp("The given cell metadata file '${object@cell_metadata}' doe not exist!")
+    msg <- stringr::str_interp("The given cell metadata file '${object@cell_metadata}' does not exist!")
     errors <- c(errors, msg)
   }
 
   if (object@gene_metadata != "" && !file.exists(object@gene_metadata)) {
-    msg <- stringr::str_interp("The given gene metadata file '${object@gene_metadata}' doe not exist!")
+    msg <- stringr::str_interp("The given gene metadata file '${object@gene_metadata}' does not exist!")
     errors <- c(errors, msg)
   }
 
@@ -116,6 +110,9 @@ FGDatasetUploadParameters <- function( license  = "",
 
 get_data_from_FGDatasetUploadParameters <- function(object, connection){
   data <- list()
+  if (object@batch_column != "" && object@cell_metadata == "")
+      stop(stringr::str_interp("If batch_column is set, you need to provide a file containing cell_metatadata, too!"))
+
   if (!object@license == "")
   {
     data["license"] <- object@license

@@ -4,7 +4,7 @@ BEARER_FROM_ENV = Sys.getenv("FGBEARERTOKEN")
 BASE_URL = Sys.getenv("FGBASEURL")
 
 test_that("scope is valid", {
-  default_conn <- new("FGConnection", base_url = "invalid", bearer_token = "invalid")
+  default_conn <- new("FGConnection", base_url = "http://example.com", bearer_token = "Bearer ey1")
   expect_error(get_datasets(default_conn, "bla"), "scope is 'bla' but should be one of: All, Public, Private")
 })
 
@@ -111,8 +111,9 @@ test_that("FGDatasetUploadParameters: can create", {
 })
 
 test_that("FGDatasetUploadParameters: batch_column cannot be set if no cell metadata", {
-  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
-  expect_error(FGDatasetUploadParameters("FGDatasetUploadParameters", batch_column="something" ), " If batch_column is set, you need to provide a file containing cell_metatadata, too!")
+    default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
+    params = FGDatasetUploadParameters("FGDatasetUploadParameters", batch_column="something" )
+    expect_error(get_data_from_FGDatasetUploadParameters(params), "If batch_column is set, you need to provide a file containing cell_metatadata, too!")
 
 })
 

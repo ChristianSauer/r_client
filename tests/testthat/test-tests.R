@@ -1,7 +1,7 @@
 context("test-tests")
 
 test_that("connection needs Bearer Token", {
-  expect_error(fastgenomicsRclient::connect("http://example.com/", ""), "The Bearer Token cannot be empty!")
+  expect_error(fastgenomicsRclient::connect("http://example.com/", ""), "The Bearer Token should look like 'Bearer ey.....'")
 })
 
 test_that("connection bearer token need to appear valid", {
@@ -13,10 +13,6 @@ test_that("connection bearer token need to appear valid", {
 
 test_that("base_url is valid", {
   expect_silent(fastgenomicsRclient::connect("http://example.com/", "Bearer ey1"))
-})
-
-test_that("base_url must end with slash", {
-  expect_error(fastgenomicsRclient::connect("http://example.com", "Bearer ey1"), "base_url should look like this: 'https://fastgenomics.org/', but is:  http://example.com")
 })
 
 test_that("expect s4 return", {
@@ -33,8 +29,3 @@ test_that("expect s4 return url", {
   url <- "http://example.com/"
   expect_equal (fastgenomicsRclient::connect(url, "Bearer ey1")@base_url, url)
 })
-
-
-
-
-

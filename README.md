@@ -14,20 +14,17 @@ install_github("FASTGenomics/r_client")
 
 ## Example
 
+You need to get a bearer token to use this api.  You can get this
+token at: https://fastgenomics.org/ids/Account/ApiTokenLogin
+
+*WARNING*: Never commit this token to a repository or share it
+otherwise! It can be used to impersonate you
+
 ``` r
-## You need to get a bearer token to use this api. 
-## You can get this token at: https://fastgenomics.org/ids/Account/ApiTokenLogin?
-## BEWARE: Never commit this token to a repository or share it otherwise! It can be used to impersonate you
 connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Bearer Token")
 datasets <- fastgenomicsRclient::get_datasets(connection)
 print(datasets@content) # all datasets available to you
 ```
-
-## User permissions
-
-If you get 403 FORBIDDEN errors when using the api, your user account has not the necessary permissions for an operation.
-Please contact us at feedback@fastgenomics.org to get access to such functions.
-
 
 ## Run tests
 
@@ -38,4 +35,23 @@ Sys.setenv(FGBEARERTOKEN = "YOUR TOKEN")
 Sys.setenv(FGBASEURL = "URL")
 ```
 
-then run the tests through RStudio (Build -> Test Pakcage) or run devtools::test()
+then run the tests through RStudio (Build -> Test Pakcage) or run
+`devtools::test()`
+
+## Troubleshooting
+
+
+### HTTP2 framing error
+
+If you encounter an HTTP2 framing error try disabling HTTP2 with
+
+``` r
+library("httr")
+httr::set_config(config(http_version = 0))
+```
+
+### User permissions
+
+If you get 403 FORBIDDEN errors when using the API, your user account
+has not the necessary permissions for an operation.  Please contact us
+at feedback@fastgenomics.org to get access to such functions.
