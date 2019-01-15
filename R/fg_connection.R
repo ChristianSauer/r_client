@@ -4,6 +4,23 @@ library(jose)
 library(jsonlite)
 library(stringr)
 
+
+check_FGConnection <- function(object){
+    errors <- character()
+    if (object@base_url == "") {
+        msg <- stringr::str_interp("URL Cannot be empty")
+        errors <- c(errors, msg)
+    }
+
+    if (!startsWith(object@bearer_token, "Bearer ey"))
+    {
+        msg <- stringr::str_interp("The Bearer Token should look like 'Bearer ey.....'")
+        errors <- c(errors, msg)
+    }
+
+    if (length(errors) == 0) TRUE else errors
+}
+
 #' A FGConnection
 #'
 #'  Make sure that you never share an environment which contains such an object.
@@ -18,16 +35,17 @@ library(stringr)
 #' None
 setClass("FGConnection",
          slots = c(
-           base_url = "character",
-           bearer_token = "character"
+             base_url = "character",
+             bearer_token = "character"
+         ),
+         validity = check_FGConnection
          )
-)
 
 assert_is_connection <- function(connection){
-  if (!is(connection, "FGConnection"))
-  {
-    stop("the connection is invalid, call fastgenomicsRClient::connect to obtain a valid connection")
-  }
+    if (!is(connection, "FGConnection"))
+    {
+        stop("the connection is invalid, call fastgenomicsRClient::connect to obtain a valid connection")
+    }
 }
 
 #' Helper Function to check if a FGConnection is still valid. Normally called automatically.

@@ -12,19 +12,6 @@
 #' @examples
 #' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Beaer ey...")
 connect <- function(base_url, bearer_token) {
-  if (bearer_token=="") {
-    stop("The Bearer Token cannot be empty!")
-  }
-
-  if (!startsWith(bearer_token, "Bearer ey"))
-  {
-    stop("The Bearer Token should look like 'Bearer ey.....'")
-  }
-
-  if (base_url=="") {
-    stop("base_url cannot be empty!")
-  }
-
   if (!endsWith(base_url, "/")){
       base_url = paste(base_url, "/", sep="")
       message("base_url is missing '/' at the end, appending...")

@@ -4,7 +4,7 @@ BEARER_FROM_ENV = Sys.getenv("BEARERTOKEN")
 BASE_URL = Sys.getenv("BASEURL")
 
 test_that("scope is valid", {
-  default_conn <- new("FGConnection", base_url = "invalid", bearer_token = "invalid")
+  default_conn <- new("FGConnection", base_url = "http://example.com", bearer_token = "Bearer ey1")
   expect_error(get_datasets(default_conn, "bla"), "scope is 'bla' but should be one of: All, Public, Private")
 })
 
