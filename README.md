@@ -18,7 +18,7 @@ install_github("FASTGenomics/r_client")
 TODO
 
 ``` r
-## You need to get a bearer token to use this api. 
+## You need to get a bearer token to use this api.
 ## You can get this token at: https://fastgenomics.org/ids/Account/ApiTokenLogin?
 ## BEWARE: Never commit this token to a repository or share it otherwise! It can be used to impersonate you
 connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Bearer Token")
@@ -33,4 +33,13 @@ If you want the unit tests of this package, set two envrionment variables
 ```r
 Sys.setenv(BEARERTOKEN = "YOUR TOKEN")
 Sys.setenv(BASEURL = "URL")
+```
+
+## Troubleshooting
+
+If you encounter an HTTP2 framing error try disabling HTTP2 with
+
+``` r
+library("httr")
+httr::set_config(config(http_version = 0))
 ```
