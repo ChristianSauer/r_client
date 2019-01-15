@@ -80,8 +80,6 @@ create_dataset_from_seurat <- function(connection, seurat_obj,
 
     body = list(
         matrix = httr::upload_file(files[["matrix_csv"]]),
-        gene_metadata = httr::upload_file(files[["gene_metadata"]]),
-        cell_metadata = httr::upload_file(files[["cell_metadata"]]),
         title = title,
         description = description,
         short_description = short_description,
@@ -95,8 +93,22 @@ create_dataset_from_seurat <- function(connection, seurat_obj,
         if (!is(optional_parameters, "FGDatasetUploadParameters"))
             stop("the optional_parameters need to be either NULL or a FGDatasetUploadParameters object. Call new('FGDatasetUploadParameters', ..) to obtain such an object.")
         else
+        {
+            if(optional_parameters@gene_metadata != ""){
+                message("Warning, replacing gene_metadata with a table inferred from the Seurat object")
+            }
+
+            if(optional_parameters@cell_metadata != ""){
+                message("Warning, replacing cell_metadata with a table inferred from the Seurat object")
+            }
+
+            optional_parameters@gene_metadata = files[["gene_metadata"]]
+            optional_parameters@cell_metadata = files[["cell_metadata"]]
+
             body <- c(get_data_from_FGDatasetUploadParameters(
-                      optional_parameters, connection), body)
+                optional_parameters, connection), body)
+
+        }
 
     response <- httr::POST(url, headers, body = body)
 
