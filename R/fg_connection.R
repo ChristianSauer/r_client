@@ -65,6 +65,6 @@ assert_token_is_not_expired <- function(connection){
   data <- jsonlite::fromJSON(payload, simplifyVector = FALSE)
   if (data[["exp"]] < as.integer(as.POSIXct(Sys.time())))
   {
-    Stop("Your Bearer Token has expired! Please obtain a new Bearer Token")
+    stop("Your Bearer Token has expired! Please obtain a new Bearer Token")
   }
 }
