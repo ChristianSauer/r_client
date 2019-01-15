@@ -4,8 +4,8 @@ get_cell_ids = function(spmat){spmat@Dimnames[[2]]}
 get_sparse_mat = function(spmat, dir){
     file_name = file.path(dir, "matrix.csv")
     df = data.frame(
-        geneId = get_gene_ids(spmat)[spmat@i+1],
         cellId = get_cell_ids(spmat)[spmat@j+1],
+        geneId = get_gene_ids(spmat)[spmat@i+1],
         expression = spmat@x)
     message(stringr::str_interp("Saving data in a sparse format as '${file_name}'"))
     write.csv(df, file_name, row.names=FALSE)
@@ -30,14 +30,15 @@ get_sparse_cell_metadata = function(cell_metadata, dir){
 }
 
 get_sparse_files = function(seurat_obj, zipfiles=TRUE){
-    data = seurat_obj@data
+    data = as(seurat_obj@data, "dgTMatrix")
     gene_ids = get_gene_ids(data)
     cell_metadata = seurat_obj@meta.data
+
     dir = file.path(tempdir(),
                     stringi::stri_rand_strings(n=1, length = 20)[[1]])
     dir.create(dir)
     files = list(
-        matrix_csv = get_sparse_mat(seurat_obj@data, dir),
+        matrix_csv = get_sparse_mat(data, dir),
         gene_metadata = get_sparse_gene_metadata(gene_ids, dir),
         cell_metadata = get_sparse_cell_metadata(cell_metadata, dir))
 
@@ -100,14 +101,21 @@ create_dataset_from_seurat <- function(connection, seurat_obj,
     response <- httr::POST(url, headers, body = body)
 
     if (response["status_code"] == 422) {
-                                        # handle errors in the upload, e.g. invalid datatypes
         parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
         validation_errors <- parsed[["validation_errors"]]
         warning(stringr::str_interp("Upload of dataset failed due to these errors: ${validation_errors}"),
-                call. = FALSE
-                )
+                call. = FALSE)
 
-        error <- new("FGErrorResponse", path = url, content = parsed, validation_errors=parsed[["validation_errors"]])
+        error <- new("FGErrorResponse", path = url, content = parsed, validation_errors=validation_errors)
+        return(error)
+    }
+    else if(response["status_code"] == 400){
+        parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
+        message = parsed[["message"]]
+        error_code = parsed[["error_code"]]
+        warning(stringr::str_interp("Upload of dataset failed due to an error: ${message}"),
+                call. = FALSE)
+        error <- new("FGErrorResponse", path = url, content = parsed, validation_errors=paste(error_code, message))
         return(error)
     }
 
