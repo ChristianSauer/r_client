@@ -26,13 +26,12 @@ cell_metadata_to_file = function(cell_metadata, dir){
     return(file_name)
 }
 
-
 create_tmp_files = function(matrix, cell_metadata, gene_metadata, tmpdir=NULL){
     if(is.null(tmpdir)){
         tmpdir = file.path(tempdir(),
                            stringi::stri_rand_strings(n=1, length = 20)[[1]])
-        dir.create(tmpdir)
     }
+    dir.create(tmpdir)
 
     files = list(
         matrix_csv = matrix_to_file(matrix, tmpdir),
@@ -127,7 +126,9 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
     return(parse_response(response, "dataset"))
 }
 
-
+#' Uploads a seurat dataset.  For argument description see \code{\link{create_dataset_df}}.
+#'
+#' @export
 create_dataset_from_seurat <- function(connection, seurat_obj, ...){
     matrix = as(seurat_obj@data, "dgTMatrix")
     cell_metadata = seurat_obj@meta.data
