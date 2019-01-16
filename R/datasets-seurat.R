@@ -80,8 +80,6 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
         stop("gene_metadata must have a geneId column.")
     }
     if( length(intersect(get_cell_ids(matrix), cell_metadata$cellId)) == 0 ){
-        print(get_cell_ids(matrix))
-        print(cell_metadata$cellId)
         stop("No common cell names found in matrix and cell_metadata.")
     }
     if( length(intersect(get_gene_ids(matrix), gene_metadata$geneId)) == 0 ){
@@ -126,7 +124,6 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
         }
 
     response <- httr::POST(url, headers, body = body)
-    print(response)
     return(parse_response(response, "dataset"))
 }
 
