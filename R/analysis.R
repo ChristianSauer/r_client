@@ -65,20 +65,15 @@ run_analysis <- function(connection, dataset_id, workflow_id, title, abstract, d
     return(parse_response(response, "analysis"))
 }
 
-#' Waits for the validation of the dataset to complete.
-#'
-#' Messages and errors are used to show messages. If you need all messages, use \code{\link{get_dataset}} with the id of this dataset
+#' Waits for analysis to complete.
 #'
 #' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
-#' @param dataset_id The id of the dataset, usually starting with dts_***** OR a FGResponse object
+#' @param analysis Either the id of an analysis or an FGResponse object containing submitted analysis
 #' @param poll_intervall The time to wait for a new status update in seconds
 #'
 #' @return TRUE if the analysis succeeded, otherweise FALSE
 #' @export
-#'
-#' @examples
-#' See create_dataset example
-poll_analysis_until_validated <- function(connection, analysis, poll_intervall=10){
+poll_analysis_until_completed <- function(connection, analysis, poll_intervall=10){
     assert_is_connection(connection)
     assert_token_is_not_expired(connection)
 
