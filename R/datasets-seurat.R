@@ -14,7 +14,7 @@ get_sparse_mat = function(spmat, dir){
 
 get_sparse_gene_metadata = function(gene_ids, dir){
     file_name = file.path(dir, "gene_metadata.csv")
-    df = data.frame(geneId = gene_ids)
+    df = data.frame(geneId = gene_ids, dummy_column = 1)
     message(stringr::str_interp("Saving gene metadata as '${file_name}'"))
     write.csv(df, file_name, row.names=FALSE)
     return(file_name)
