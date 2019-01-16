@@ -61,9 +61,16 @@ parse_response <- function(response, datatype){
     else {
         httr::stop_for_status(response) # abort on all other errors
         parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
+        if(!is.null(parsed[["id"]])){
+            id = parsed[["id"]]
+        } else if(!is.null(parsed[["dataset_id"]])){
+            id = parsed[["dataset_id"]]
+        } else {
+            stop("Error parsing the response, could not find a valid 'id' field.")
+        }
         fgresponse <- new("FGResponse", content=parsed,
                           path=response$url, response=response,
-                          DataType=datatype, Id=parsed[["id"]])
+                          DataType=datatype, Id=id)
     }
     return(fgresponse)
 }
