@@ -3,12 +3,12 @@
 \docType{class}
 \name{FGResponse-class}
 \alias{FGResponse-class}
-\title{A FG response}
+\title{A FG response after a successful request}
 \value{
 class FGResponse
 }
 \description{
-A FG response
+A FG response after a successful request
 }
 \section{Slots}{
 

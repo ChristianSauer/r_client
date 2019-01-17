@@ -5,11 +5,11 @@
 #' abstract and description.
 #'
 #' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
-#' @param dataset_id
-#' @param workflow_id
-#' @param title
-#' @param abstract
-#' @param description
+#' @param dataset_id dataset to be anlayzed
+#' @param workflow_id workflow to be used
+#' @param title title of the analysis
+#' @param abstract short abstract of the analysis
+#' @param description longer description
 #'
 #' @return class FGResponse
 #'
