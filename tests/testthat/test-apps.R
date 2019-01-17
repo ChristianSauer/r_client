@@ -34,7 +34,7 @@ test_that("can create an app successfully", {
 test_that("can create errors", {
   default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   result <- create_app(default_conn, "library/busybox", registry = "registry.hub.docker.com")
-  expect_is(result, "FGValidationProblem")
+  expect_is(result, "FGValidationProblemResponse")
 })
 
 test_that("poll: works", {
@@ -45,4 +45,3 @@ test_that("poll: works", {
 
   expect_false(poll_app_until_validated(default_conn, result, 1 ))
 })
-

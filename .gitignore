@@ -2,3 +2,4 @@
 .RData
 .Rproj.user
 ..Rcheck/
+tests/testthat/tmpdata

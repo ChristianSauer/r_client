@@ -168,7 +168,7 @@ test_that("create: shows usefull errors", {
                            "sparse_cell_gene_expression",
                            "Entrez",
                            optional )
-  expect_is(result, "FGErrorResponse")
+  expect_is(result, "FGErrorModelResponse")
 })
 
 test_that("poll: works", {

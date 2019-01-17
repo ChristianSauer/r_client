@@ -96,26 +96,7 @@ create_app <- function(connection, source_image_name, image_name="", registry=""
   }
 
   response <- httr::POST(url, headers, body = body, encode = "json")
-  if (response["status_code"] == 422) {
-    parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-
-    error <- new("FGValidationProblem",
-                 errors= parsed[["errors"]],
-                 title = parsed[["title"]],
-                 type = parsed[["type"]],
-                 status = parsed[["status"]],
-                 detail = parsed[["detail"]],
-                 instance = parsed[["instance"]])
-    return(error)
-
-  }
-
-  httr::stop_for_status(response) # abort on all other errors
-
-  parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-  dataset_id <- parsed[["image_name"]]
-  result <-new("FGResponse", path = url, content = parsed, DataType="app", Id=dataset_id, response=response )
-  return(result)
+  return(parse_response(response, "app"))
 }
 
 #' Waits for the validation of the app to complete.

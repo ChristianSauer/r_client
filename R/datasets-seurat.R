@@ -1,49 +1,42 @@
 get_gene_ids = function(spmat){spmat@Dimnames[[1]]}
 get_cell_ids = function(spmat){spmat@Dimnames[[2]]}
 
-get_sparse_mat = function(spmat, dir){
+matrix_to_file = function(spmat, dir){
     file_name = file.path(dir, "matrix.csv")
     df = data.frame(
         cellId = get_cell_ids(spmat)[spmat@j+1],
         geneId = get_gene_ids(spmat)[spmat@i+1],
         expression = spmat@x)
-    message(stringr::str_interp("Saving data in a sparse format as '${file_name}'"))
+    message(stringr::str_interp("Saving expression matrix in a sparse format as '${file_name}'"))
     write.csv(df, file_name, row.names=FALSE)
     return(file_name)
 }
 
-get_sparse_gene_metadata = function(gene_ids, dir){
+gene_metadata_to_file = function(gene_metadata, dir){
     file_name = file.path(dir, "gene_metadata.csv")
-    df = data.frame(geneId = gene_ids)
     message(stringr::str_interp("Saving gene metadata as '${file_name}'"))
-    write.csv(df, file_name, row.names=FALSE)
+    write.csv(gene_metadata, file_name, row.names=FALSE)
     return(file_name)
 }
 
-get_sparse_cell_metadata = function(cell_metadata, dir){
+cell_metadata_to_file = function(cell_metadata, dir){
     file_name = file.path(dir, "cell_metadata.csv")
     message(stringr::str_interp("Saving cell metadata as '${file_name}'"))
-    write.csv(cbind(cellId=rownames(cell_metadata), cell_metadata),
-              file_name,
-              row.names=FALSE)
+    write.csv(cell_metadata, file_name, row.names=FALSE)
     return(file_name)
 }
 
-get_sparse_files = function(seurat_obj, zipfiles=TRUE){
-    data = as(seurat_obj@data, "dgTMatrix")
-    gene_ids = get_gene_ids(data)
-    cell_metadata = seurat_obj@meta.data
+create_tmp_files = function(matrix, cell_metadata, gene_metadata, tmpdir=NULL){
+    if(is.null(tmpdir)){
+        tmpdir = file.path(tempdir(),
+                           stringi::stri_rand_strings(n=1, length = 20)[[1]])
+    }
+    dir.create(tmpdir)
 
-    dir = file.path(tempdir(),
-                    stringi::stri_rand_strings(n=1, length = 20)[[1]])
-    dir.create(dir)
     files = list(
-        matrix_csv = get_sparse_mat(data, dir),
-        gene_metadata = get_sparse_gene_metadata(gene_ids, dir),
-        cell_metadata = get_sparse_cell_metadata(cell_metadata, dir))
-
-    if(zipfiles)
-        files = lapply(files, zip_file)
+        matrix_csv = matrix_to_file(matrix, tmpdir),
+        gene_metadata = gene_metadata_to_file(gene_metadata, tmpdir),
+        cell_metadata = cell_metadata_to_file(cell_metadata, tmpdir))
 
     return(files)
 }
@@ -55,13 +48,11 @@ zip_file = function(file){
     return(zip_file)
 }
 
-create_dataset_from_seurat <- function(connection, seurat_obj,
-                                       gene_nomenclature, organism_id,
-                                       title=seurat_obj@project.name,
-                                       zipfiles=TRUE,
-                                       description="",
-                                       short_description="",
-                                       optional_parameters=NULL)
+create_dataset_df <- function(connection, matrix, cell_metadata,
+                              gene_metadata, gene_nomenclature,
+                              organism_id, title, zipfiles=TRUE,
+                              description="", short_description="",
+                              optional_parameters=NULL, tmpdir=NULL)
 {
     assert_is_connection(connection)
     assert_token_is_not_expired(connection)
@@ -71,12 +62,36 @@ create_dataset_from_seurat <- function(connection, seurat_obj,
     if(! (organism_id %in% c(9606, 10090)))
         stop(stringr::str_interp("The organism id '${organism_id}' is not an integer. Valid NCBI Ids are integers, e.g. Homo Sapiens: 9606 Mouse: 10090"))
 
+    ## check if the matrix is sparse
+    if( !is(matrix, "dgTMatrix") ){
+        stop("Unsupported matrix format, expected a \"dgTMatrix\".")
+    }
+    if( !is(cell_metadata, "data.frame")){
+        stop("cell_metadata must be a data frame.")
+    }
+    if( !is(gene_metadata, "data.frame")){
+        stop("gene_metadata must be a data frame.")
+    }
+    if( ! 'cellId' %in% colnames(cell_metadata) ){
+        stop("cell_metadata must have a cellId column.")
+    }
+    if( ! 'geneId' %in% colnames(gene_metadata) ){
+        stop("gene_metadata must have a geneId column.")
+    }
+    if( length(intersect(get_cell_ids(matrix), cell_metadata$cellId)) == 0 ){
+        stop("No common cell names found in matrix and cell_metadata.")
+    }
+    if( length(intersect(get_gene_ids(matrix), gene_metadata$geneId)) == 0 ){
+        stop("No common gene names found in matrix and gene_metadata.")
+    }
 
-    headers <- get_default_headers(connection)
-    headers <- c(headers, httr::progress("up")) # adds a nice progress bar
-    url <-  paste(connection@base_url, "dataset/api/v1/datasets", sep="")
+    # adds a nice progress bar
+    headers <- c(get_default_headers(connection), httr::progress("up"))
+    url <- paste(connection@base_url, "dataset/api/v1/datasets", sep="")
 
-    files = get_sparse_files(seurat_obj, zipfiles=zipfiles)
+    files = create_tmp_files(matrix, cell_metadata, gene_metadata, tmpdir=tmpdir)
+    if(zipfiles)
+        files = lapply(files, zip_file)
 
     body = list(
         matrix = httr::upload_file(files[["matrix_csv"]]),
@@ -94,47 +109,36 @@ create_dataset_from_seurat <- function(connection, seurat_obj,
             stop("the optional_parameters need to be either NULL or a FGDatasetUploadParameters object. Call new('FGDatasetUploadParameters', ..) to obtain such an object.")
         else
         {
-            if(optional_parameters@gene_metadata != ""){
+            if(optional_parameters@gene_metadata != "")
                 message("Warning, replacing gene_metadata with a table inferred from the Seurat object")
-            }
 
-            if(optional_parameters@cell_metadata != ""){
+            if(optional_parameters@cell_metadata != "")
                 message("Warning, replacing cell_metadata with a table inferred from the Seurat object")
-            }
 
             optional_parameters@gene_metadata = files[["gene_metadata"]]
             optional_parameters@cell_metadata = files[["cell_metadata"]]
 
             body <- c(get_data_from_FGDatasetUploadParameters(
                 optional_parameters, connection), body)
-
         }
 
     response <- httr::POST(url, headers, body = body)
+    return(parse_response(response, "dataset"))
+}
 
-    if (response["status_code"] == 422) {
-        parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-        validation_errors <- parsed[["validation_errors"]]
-        warning(stringr::str_interp("Upload of dataset failed due to these errors: ${validation_errors}"),
-                call. = FALSE)
+#' Uploads a seurat dataset.  For argument description see \code{\link{create_dataset_df}}.
+#'
+#' @export
+create_dataset_from_seurat <- function(connection, seurat_obj, ...){
+    matrix = as(seurat_obj@data, "dgTMatrix")
+    cell_metadata = seurat_obj@meta.data
+    cell_metadata = cbind(cellId=rownames(cell_metadata), cell_metadata)
+    gene_metadata = data.frame(geneId = seurat_obj@data@Dimnames[[1]])
 
-        error <- new("FGErrorResponse", path = url, content = parsed, validation_errors=validation_errors)
-        return(error)
-    }
-    else if(response["status_code"] == 400){
-        parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-        message = parsed[["message"]]
-        error_code = parsed[["error_code"]]
-        warning(stringr::str_interp("Upload of dataset failed due to an error: ${message}"),
-                call. = FALSE)
-        error <- new("FGErrorResponse", path = url, content = parsed, validation_errors=paste(error_code, message))
-        return(error)
-    }
-
-    httr::stop_for_status(response) # abort on all other errors
-
-    parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-    dataset_id <- parsed[["dataset_id"]]
-    result <-new("FGResponse", path = url, content = parsed, DataType="dataset", Id=dataset_id, response=response )
-    return(result)
+    create_dataset_df(connection,
+                      matrix = matrix,
+                      cell_metadata = cell_metadata,
+                      gene_metadata = gene_metadata,
+                      title = seurat_obj@project.name,
+                      ...)
 }
