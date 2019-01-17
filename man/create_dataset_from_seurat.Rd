@@ -2,10 +2,21 @@
 % Please edit documentation in R/datasets-seurat.R
 \name{create_dataset_from_seurat}
 \alias{create_dataset_from_seurat}
-\title{Uploads a seurat dataset.  For argument description see \code{\link{create_dataset_df}}.}
+\title{Uploads a seurat dataset.  Runs \code{\link{create_dataset_df}}
+with matrix, cell_metadata and gene_metadata inferred from the
+seurat object.}
 \usage{
 create_dataset_from_seurat(connection, seurat_obj, ...)
 }
+\arguments{
+\item{connection}{FASTGenomics connection object}
+
+\item{seurat_obj}{Seurat object to submitted}
+
+\item{...}{Other parameters passed to \code{\link{create_dataset_df}}}
+}
 \description{
-Uploads a seurat dataset.  For argument description see \code{\link{create_dataset_df}}.
+Uploads a seurat dataset.  Runs \code{\link{create_dataset_df}}
+with matrix, cell_metadata and gene_metadata inferred from the
+seurat object.
 }

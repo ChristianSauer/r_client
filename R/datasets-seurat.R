@@ -48,6 +48,37 @@ zip_file = function(file){
     return(zip_file)
 }
 
+#' Submits a data set from a sparse matrix of dgTmatrix type and
+#' gene/cell metadata.  dgTMatrix has to have named dimensions, cell
+#' and gene metadata must have cellId and geneId columns respectively.
+#' The names of the dimensions in the matrix must be a subset of the
+#' respective gene/cell metadata data frames.
+#'
+#' @param connection FASTGenomics connection object
+#' @param matrix dfTMatrix storing the expression table.  The first
+#'     dimension is assumed to be genes and the second must be cell
+#'     names.
+#' @param cell_metadata dataframe with cell metadata, must have a
+#'     cellId column.
+#' @param gene_metadata dataframe with gene metadata, must have a
+#'     geneId column.
+#' @param organism_id One of 9606 (Mouse) and 10090 (Human)
+#' @param title The title of the data set
+#' @param short_description short description, Default: ""
+#' @param description long description, Default: ""
+#' @param zipfiles Weather to compress files before submitting,
+#'     Default: TRUE
+#' @param tmpdir The location of temporary files, Default: NULL
+#' @param optional_parameters Object representing further optional
+#'     parameters, see \code{\link{FGDatasetUploadParameters}},
+#'     Default: NULL
+#'
+#' @return either of \code{\link{FGResponse}},
+#'     \code{\link{FGErrorResponse}},
+#'     \code{\link{FGErrorModelResponse}},
+#'     \code{\link{FGValidationProblem}}.
+#'
+#' @export
 create_dataset_df <- function(connection, matrix, cell_metadata,
                               gene_metadata, gene_nomenclature,
                               organism_id, title, zipfiles=TRUE,
@@ -126,7 +157,13 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
     return(parse_response(response, "dataset"))
 }
 
-#' Uploads a seurat dataset.  For argument description see \code{\link{create_dataset_df}}.
+#' Uploads a seurat dataset.  Runs \code{\link{create_dataset_df}}
+#' with matrix, cell_metadata and gene_metadata inferred from the
+#' seurat object.
+#'
+#' @param connection FASTGenomics connection object
+#' @param seurat_obj Seurat object to submitted
+#' @param ... Other parameters passed to \code{\link{create_dataset_df}}
 #'
 #' @export
 create_dataset_from_seurat <- function(connection, seurat_obj, ...){
