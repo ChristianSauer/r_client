@@ -25,7 +25,7 @@ gen_args <- function(replacements){
                 short_description = "short_description",
                 organism_id = 9606,
                 gene_nomenclature = "GeneSymbol",
-                tmpdir="./tmpdata")
+                tmpdir="./temp")
     args[names(replacements)] = replacements
     args
 }

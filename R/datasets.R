@@ -222,25 +222,7 @@ create_dataset <- function(connection, title, description, short_description, or
   body = c(body, optional_data)
 
   response <- httr::POST(url, headers, body = body )
-
-  if (response["status_code"] == 422) {
-    # handle errors in the upload, e.g. invalid datatypes
-    parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-    validation_errors <- parsed[["validation_errors"]]
-    warning(stringr::str_interp("Upload of dataset failed due to these errors: ${validation_errors}"),
-            call. = FALSE
-    )
-
-    error <- new("FGErrorResponse", path = url, content = parsed, validation_errors=parsed[["validation_errors"]])
-    return(error)
-  }
-
-  httr::stop_for_status(response) # abort on all other errors
-
-  parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-  dataset_id <- parsed[["dataset_id"]]
-  result <-new("FGResponse", path = url, content = parsed, DataType="dataset", Id=dataset_id, response=response )
-  return(result)
+  return(parse_response(response, "dataset"))
 }
 
 #' Waits for the validation of the dataset to complete.
