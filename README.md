@@ -63,5 +63,5 @@ We internally use the
 function, which by default uses a system-dependent compression program
 (`"zip"` by default).  Make sure to have zip installed if you wan to
 submit compressed data.  On Windows one solution is to get it with
-(the Rtools package)[https://cran.rstudio.com/bin/windows/Rtools/],
+[the Rtools package](https://cran.rstudio.com/bin/windows/Rtools/),
 just make sure to check the update PATH checkbox when installing it.
