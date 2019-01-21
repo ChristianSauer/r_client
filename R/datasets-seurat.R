@@ -122,7 +122,6 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
 
     # adds a nice progress bar
     headers <- c(get_default_headers(connection), httr::progress("up"))
-    headers <- get_default_headers(connection)
     url <- paste(connection@base_url, "dataset/api/v1/datasets", sep="")
 
     files = create_tmp_files(matrix, cell_metadata, gene_metadata, tmpdir=tmpdir)
