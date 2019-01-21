@@ -17,7 +17,8 @@ Imports:
     jsonlite,
     lubridate,
     uuid (>= 0.1.2),
-    readr
+    readr,
+    Matrix
 Suggests: 
     testthat
 RoxygenNote: 6.1.1

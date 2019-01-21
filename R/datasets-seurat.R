@@ -45,6 +45,10 @@ zip_file = function(file){
     message(stringr::str_interp("compressing file '${file}', this may take a while..."))
     zip_file <- paste(c(basename(file), "zip"), collapse=".")
     zip(zipfile = zip_file, files=file, flags="-j")
+    if(! file.exists(zip_file) )
+        stop("Could not zip the files.  Consider installing a zip program or using a zipfiles=FALSE option.")
+    else
+        file.remove(file)
     return(zip_file)
 }
 
@@ -118,6 +122,7 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
 
     # adds a nice progress bar
     headers <- c(get_default_headers(connection), httr::progress("up"))
+    headers <- get_default_headers(connection)
     url <- paste(connection@base_url, "dataset/api/v1/datasets", sep="")
 
     files = create_tmp_files(matrix, cell_metadata, gene_metadata, tmpdir=tmpdir)
@@ -154,6 +159,7 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
         }
 
     response <- httr::POST(url, headers, body = body)
+    lapply(files, file.remove)
     return(parse_response(response, "dataset"))
 }
 

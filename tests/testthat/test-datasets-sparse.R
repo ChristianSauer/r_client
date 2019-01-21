@@ -1,4 +1,5 @@
 context("test-datasets-sparse")
+library(Matrix)
 
 BEARER_FROM_ENV = Sys.getenv("FGBEARERTOKEN")
 BASE_URL = Sys.getenv("FGBASEURL")
@@ -12,7 +13,7 @@ gen_data <- function(){
     return(list(cells=cell_metadata, genes=gene_metadata, matrix=matrix))
 }
 
-gen_args <- function(replacements){
+gen_args <- function(replacements=list()){
     default_conn <- new(
         "FGConnection", base_url=BASE_URL, bearer_token=BEARER_FROM_ENV)
     input = gen_data()
@@ -25,27 +26,32 @@ gen_args <- function(replacements){
                 short_description = "short_description",
                 organism_id = 9606,
                 gene_nomenclature = "GeneSymbol",
-                tmpdir="./temp")
+                tmpdir="./temp",
+                zipfiles=FALSE)
     args[names(replacements)] = replacements
     args
 }
 
 test_that(
     "create-sparse: can create a dataset", {
-        default_conn <- new(
-            "FGConnection", base_url=BASE_URL, bearer_token=BEARER_FROM_ENV)
-        input <- gen_data()
-        result <- create_dataset_df(default_conn,
-                                    matrix = input$matrix,
-                                    cell_metadata = input$cells,
-                                    gene_metadata = input$genes,
-                                    title = "R client test",
-                                    description = "description",
-                                    short_description = "short_description",
-                                    organism_id = 9606,
-                                    gene_nomenclature = "GeneSymbol",
-                                    tmpdir="./tmpdata")
+        args <- gen_args()
+        result <- do.call(create_dataset_df, args)
         expect_is(result, "FGResponse")
+    })
+
+test_that(
+    "create-sparse: can create a dataset, zipped", {
+        args <- gen_args(list(zipfiles=TRUE))
+        result <- do.call(create_dataset_df, args)
+        expect_is(result, "FGResponse")
+    })
+
+test_that(
+    "create-sparse: can poll upload status", {
+        args <- gen_args()
+        result <- do.call(create_dataset_df, args)
+        status <- poll_dataset_until_validated(connection, result)
+        expect_true(status)
     })
 
 test_that(
