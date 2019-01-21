@@ -55,3 +55,12 @@ httr::set_config(config(http_version = 0))
 If you get 403 FORBIDDEN errors when using the API, your user account
 has not the necessary permissions for an operation.  Please contact us
 at feedback@fastgenomics.org to get access to such functions.
+
+### Compression of submitted data
+
+We internally use the
+[`zip`](https://www.rdocumentation.org/packages/utils/versions/3.5.1/topics/zip)
+function, which by default uses a system-dependent compression program
+(`"zip"` by default).  Make sure to have zip installed if you wan to
+submit compressed data, on Windows it comes with an Rtools package,
+just make sure to check the update PATH checkbox when installing it.
