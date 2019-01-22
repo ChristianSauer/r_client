@@ -36,6 +36,8 @@ create_tmp_files = function(matrix, cell_metadata, gene_metadata, tmpdir=NULL){
                            stringi::stri_rand_strings(n=1, length = 20)[[1]])
     }
     dir.create(tmpdir)
+    tmpdir = normalizePath(tmpdir)
+
     files = list(
         matrix_csv = matrix_to_file(matrix, tmpdir),
         gene_metadata = gene_metadata_to_file(gene_metadata, tmpdir),
