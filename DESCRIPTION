@@ -19,6 +19,8 @@ Imports:
     uuid (>= 0.1.2),
     readr,
     Matrix
+Remotes:
+    r-lib/zip
 Suggests: 
     testthat
 RoxygenNote: 6.1.1

@@ -17,6 +17,8 @@ gen_args <- function(replacements=list()){
     default_conn <- new(
         "FGConnection", base_url=BASE_URL, bearer_token=BEARER_FROM_ENV)
     input = gen_data()
+    tmpdir = file.path("./temp",
+                       stringi::stri_rand_strings(n=1, length = 20)[[1]])
     args = list(connection = default_conn,
                 matrix = input$matrix,
                 cell_metadata = input$cells,
@@ -26,15 +28,15 @@ gen_args <- function(replacements=list()){
                 short_description = "short_description",
                 organism_id = 9606,
                 gene_nomenclature = "GeneSymbol",
-                tmpdir="./temp",
-                zipfiles=FALSE)
+                tmpdir=tmpdir,
+                zipfiles=TRUE)
     args[names(replacements)] = replacements
     args
 }
 
 test_that(
-    "create-sparse: can create a dataset", {
-        args <- gen_args()
+    "create-sparse: can create a dataset, unzipped", {
+        args <- gen_args(list(zipfiles=FALSE))
         result <- do.call(create_dataset_df, args)
         expect_is(result, "FGResponse")
     })
@@ -44,6 +46,28 @@ test_that(
         args <- gen_args(list(zipfiles=TRUE))
         result <- do.call(create_dataset_df, args)
         expect_is(result, "FGResponse")
+    })
+
+test_that(
+    "create-sparse: can create a dataset, dgCMatrix", {
+        args <- gen_args(list(matrix = as(gen_data()$matrix, "dgCMatrix")))
+        result <- do.call(create_dataset_df, args)
+        expect_is(result, "FGResponse")
+    })
+
+test_that(
+    "create-sparse: does not change working directory", {
+        args <- gen_args()
+        result <- do.call(create_dataset_df, args)
+        oldwd <- getwd()
+        expect_true(getwd()==oldwd)
+    })
+
+test_that(
+    "create-sparse: temp directory is empty after the submission", {
+        args <- gen_args()
+        result <- do.call(create_dataset_df, args)
+        expect_true(length(list.files(args$tmpdir))==0)
     })
 
 test_that(
@@ -57,7 +81,7 @@ test_that(
 test_that(
     "create-sparse: wrong matrix type", {
         args <- gen_args(list(matrix = "abc"))
-        expect_error(do.call(create_dataset_df, args), "Unsupported matrix format, expected a \"dgTMatrix\".")
+        expect_error(do.call(create_dataset_df, args), "Unsupported matrix format, expected a \"sparseMatrix\".")
     })
 
 test_that(
