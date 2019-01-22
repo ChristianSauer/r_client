@@ -1,3 +1,6 @@
+library(Matrix)
+library(zip)
+
 get_gene_ids = function(spmat){spmat@Dimnames[[1]]}
 get_cell_ids = function(spmat){spmat@Dimnames[[2]]}
 
@@ -32,7 +35,7 @@ create_tmp_files = function(matrix, cell_metadata, gene_metadata, tmpdir=NULL){
                            stringi::stri_rand_strings(n=1, length = 20)[[1]])
     }
     dir.create(tmpdir)
-
+    matrix = as(matrix, "dgTMatrix")
     files = list(
         matrix_csv = matrix_to_file(matrix, tmpdir),
         gene_metadata = gene_metadata_to_file(gene_metadata, tmpdir),
@@ -43,12 +46,21 @@ create_tmp_files = function(matrix, cell_metadata, gene_metadata, tmpdir=NULL){
 
 zip_file = function(file){
     message(stringr::str_interp("compressing file '${file}', this may take a while..."))
-    zip_file <- paste(c(basename(file), "zip"), collapse=".")
-    zip(zipfile = zip_file, files=file, flags="-j")
-    if(! file.exists(zip_file) )
-        stop("Could not zip the files.  Consider installing a zip program or using a zipfiles=FALSE option.")
-    else
-        file.remove(file)
+    zip_file <- paste(c(file, "zip"), collapse=".")
+    oldwd = getwd()
+
+    tryCatch({
+        setwd(dirname(file))
+        zip(zip_file, basename(file))
+        if(! file.exists(zip_file) )
+            stop("Could not find the compressed file.")
+        file.remove(basename(file))
+    },
+    error = stop,
+    finally = {
+        setwd(oldwd)
+    })
+
     return(zip_file)
 }
 
@@ -98,8 +110,8 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
         stop(stringr::str_interp("The organism id '${organism_id}' is not an integer. Valid NCBI Ids are integers, e.g. Homo Sapiens: 9606 Mouse: 10090"))
 
     ## check if the matrix is sparse
-    if( !is(matrix, "dgTMatrix") ){
-        stop("Unsupported matrix format, expected a \"dgTMatrix\".")
+    if( !is(matrix, "sparseMatrix") ){
+        stop("Unsupported matrix format, expected a \"sparseMatrix\".")
     }
     if( !is(cell_metadata, "data.frame")){
         stop("cell_metadata must be a data frame.")

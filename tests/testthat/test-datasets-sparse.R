@@ -57,7 +57,7 @@ test_that(
 test_that(
     "create-sparse: wrong matrix type", {
         args <- gen_args(list(matrix = "abc"))
-        expect_error(do.call(create_dataset_df, args), "Unsupported matrix format, expected a \"dgTMatrix\".")
+        expect_error(do.call(create_dataset_df, args), "Unsupported matrix format, expected a \"sparseMatrix\".")
     })
 
 test_that(
