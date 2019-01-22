@@ -151,26 +151,29 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
 
     optional_data <- list()
 
-    if (!is.null(optional_parameters))
-        if (!is(optional_parameters, "FGDatasetUploadParameters"))
-            stop("the optional_parameters need to be either NULL or a FGDatasetUploadParameters object. Call new('FGDatasetUploadParameters', ..) to obtain such an object.")
-        else
-        {
-            if(optional_parameters@gene_metadata != "")
-                message("Warning, replacing gene_metadata with a table inferred from the Seurat object")
+    tryCatch({
+        if (!is.null(optional_parameters))
+            if (!is(optional_parameters, "FGDatasetUploadParameters"))
+                stop("the optional_parameters need to be either NULL or a FGDatasetUploadParameters object. Call new('FGDatasetUploadParameters', ..) to obtain such an object.")
+            else
+            {
+                if(optional_parameters@gene_metadata != "")
+                    message("Warning, replacing gene_metadata with a table inferred from the Seurat object")
 
-            if(optional_parameters@cell_metadata != "")
-                message("Warning, replacing cell_metadata with a table inferred from the Seurat object")
+                if(optional_parameters@cell_metadata != "")
+                    message("Warning, replacing cell_metadata with a table inferred from the Seurat object")
 
-            optional_parameters@gene_metadata = files[["gene_metadata"]]
-            optional_parameters@cell_metadata = files[["cell_metadata"]]
+                optional_parameters@gene_metadata = files[["gene_metadata"]]
+                optional_parameters@cell_metadata = files[["cell_metadata"]]
 
-            body <- c(get_data_from_FGDatasetUploadParameters(
-                optional_parameters, connection), body)
-        }
+                body <- c(get_data_from_FGDatasetUploadParameters(
+                    optional_parameters, connection), body)
+            }
 
-    response <- httr::POST(url, headers, body = body)
-    lapply(files, file.remove)
+        response <- httr::POST(url, headers, body = body)},
+        error = stop,
+        finally = {lapply(files, file.remove)}
+        )
     return(parse_response(response, "dataset"))
 }
 
