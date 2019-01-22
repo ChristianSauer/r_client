@@ -36,6 +36,8 @@ create_analysis_template <- function(connection, dataset_id, workflow_id, title,
 #' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #' @return class FGResponse
 #'
+#' @export
+#'
 #' @examples
 #' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Bearer ey...")
 #' analysis <- fastgenomicsRclient::run_analysis(connection, "dts_xxxx", "wf_xxx", title="Some title", abstract="Some abstract")

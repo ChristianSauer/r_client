@@ -73,7 +73,7 @@ zip_file = function(file){
 #' respective gene/cell metadata data frames.
 #'
 #' @param connection FASTGenomics connection object
-#' @param matrix dfTMatrix storing the expression table.  The first
+#' @param matrix sparseMatrix storing the expression table.  The first
 #'     dimension is assumed to be genes and the second must be cell
 #'     names.
 #' @param cell_metadata dataframe with cell metadata, must have a
