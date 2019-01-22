@@ -5,6 +5,7 @@ get_gene_ids = function(spmat){spmat@Dimnames[[1]]}
 get_cell_ids = function(spmat){spmat@Dimnames[[2]]}
 
 matrix_to_file = function(spmat, dir){
+    spmat = as(spmat, "dgTMatrix")
     file_name = file.path(dir, "matrix.csv")
     df = data.frame(
         cellId = get_cell_ids(spmat)[spmat@j+1],
@@ -35,7 +36,6 @@ create_tmp_files = function(matrix, cell_metadata, gene_metadata, tmpdir=NULL){
                            stringi::stri_rand_strings(n=1, length = 20)[[1]])
     }
     dir.create(tmpdir)
-    matrix = as(matrix, "dgTMatrix")
     files = list(
         matrix_csv = matrix_to_file(matrix, tmpdir),
         gene_metadata = gene_metadata_to_file(gene_metadata, tmpdir),
