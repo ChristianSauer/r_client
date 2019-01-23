@@ -379,9 +379,8 @@ get_df_as_file <- function(df, file_name){
   write.csv(df, tmp_file, row.names=FALSE)
 
   message(stringr::str_interp("compressing file '${file_name}', this may take a while"))
-  zip_file <- file.path(tmp_dir, "data.zip")
-  zip(zipfile = zip_file, files=tmp_file, flags="-j")
+  file.zip = zip_file(file_name)
 
   message(stringr::str_interp("Compressing ${file_name}' finished"))
-  return(zip_file)
+  return(file.zip)
 }

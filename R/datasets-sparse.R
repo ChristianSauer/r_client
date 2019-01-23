@@ -1,5 +1,4 @@
 library(Matrix)
-library(zip)
 
 get_gene_ids = function(spmat){spmat@Dimnames[[1]]}
 get_cell_ids = function(spmat){spmat@Dimnames[[2]]}
@@ -44,26 +43,6 @@ create_tmp_files = function(matrix, cell_metadata, gene_metadata, tmpdir=NULL){
         cell_metadata = cell_metadata_to_file(cell_metadata, tmpdir))
 
     return(files)
-}
-
-zip_file = function(file){
-    message(stringr::str_interp("compressing file '${file}', this may take a while..."))
-    zip_file <- paste(c(normalizePath(file), "zip"), collapse=".")
-    oldwd = getwd()
-
-    tryCatch({
-        setwd(dirname(file))
-        zip(zip_file, basename(file))
-        if(! file.exists(zip_file) )
-            stop("Could not find the compressed file.")
-        file.remove(basename(file))
-    },
-    error = stop,
-    finally = {
-        setwd(oldwd)
-    })
-
-    return(zip_file)
 }
 
 #' Submits a data set from a sparse matrix of dgTmatrix type and
