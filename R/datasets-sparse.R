@@ -87,9 +87,11 @@ zip_file = function(file){
 #' @param zipfiles Weather to compress files before submitting,
 #'     Default: TRUE
 #' @param tmpdir The location of temporary files, Default: NULL
+#' @param batch_column The column in the gene_metadata which is used to hold batch information. Can be "" for no batch information
 #' @param optional_parameters Object representing further optional
 #'     parameters, see \code{\link{FGDatasetUploadParameters}},
 #'     Default: NULL
+#'     The properties batch_column, gene_metadata and cell_metadata of this object are always ignored
 #'
 #' @return either of \code{\link{FGResponse}},
 #'     \code{\link{FGErrorResponse}},
@@ -101,7 +103,8 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
                               gene_metadata, gene_nomenclature,
                               organism_id, title, zipfiles=TRUE,
                               description="", short_description="",
-                              optional_parameters=NULL, tmpdir=NULL)
+                              batch_column="",
+                              optional_parameters=FGDatasetUploadParameters() , tmpdir=NULL)
 {
     assert_is_connection(connection)
     assert_token_is_not_expired(connection)
@@ -167,6 +170,7 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
 
                 optional_parameters@gene_metadata = files[["gene_metadata"]]
                 optional_parameters@cell_metadata = files[["cell_metadata"]]
+                optional_parameters@batch_column = batch_column
 
                 body <- c(get_data_from_FGDatasetUploadParameters(
                     optional_parameters, connection), body)

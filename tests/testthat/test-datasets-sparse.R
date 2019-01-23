@@ -75,7 +75,7 @@ test_that(
     "create-sparse: can poll upload status", {
         args <- gen_args()
         result <- do.call(create_dataset_df, args)
-        status <- poll_dataset_until_validated(connection, result)
+        status <- poll_dataset_until_validated(args$connection, result)
         expect_true(status)
     })
 
