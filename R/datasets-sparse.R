@@ -112,6 +112,9 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
     if( length(intersect(get_gene_ids(matrix), gene_metadata$geneId)) == 0 ){
         stop("No common gene names found in matrix and gene_metadata.")
     }
+    if( nchar(title) < 5 | nchar(title) > 50 ){
+        stop("Title has to be a string with length between 5 and 50.")
+    }
 
     # adds a nice progress bar
     headers <- c(get_default_headers(connection), httr::progress("up"))

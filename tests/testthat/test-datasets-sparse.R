@@ -120,3 +120,15 @@ test_that(
         args <- gen_args(list(gene_metadata = data.frame(geneId=c(1,2,3))))
         expect_error(do.call(create_dataset_df, args), "No common gene names found in matrix and gene_metadata.")
     })
+
+test_that(
+    "create-sparse: title too short", {
+        args <- gen_args(list(title = "a"))
+        expect_error(do.call(create_dataset_df, args), "Title has to be a string with length between 5 and 50.")
+    })
+
+test_that(
+    "create-sparse: tile too long", {
+        args <- gen_args(list(title = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+        expect_error(do.call(create_dataset_df, args), "Title has to be a string with length between 5 and 50.")
+    })
