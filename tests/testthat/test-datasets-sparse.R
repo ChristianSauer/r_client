@@ -17,6 +17,7 @@ gen_args <- function(replacements=list()){
     default_conn <- new(
         "FGConnection", base_url=BASE_URL, bearer_token=BEARER_FROM_ENV)
     input = gen_data()
+    dir.create("./temp", showWarnings=FALSE)
     tmpdir = file.path("./temp",
                        stringi::stri_rand_strings(n=1, length = 20)[[1]])
     args = list(connection = default_conn,
