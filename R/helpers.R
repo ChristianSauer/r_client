@@ -8,15 +8,16 @@ get_default_headers <- function(connection){
 }
 
 zip_file = function(file){
+    file <- normalizePath(file)
+    file.zip <- paste(c(file, "zip"), collapse=".")
     message(stringr::str_interp("compressing file '${file}', this may take a while..."))
-    zip_file <- paste(c(normalizePath(file), "zip"), collapse=".")
     oldwd = getwd()
 
     tryCatch({
         setwd(dirname(file))
-        zip::zip(zip_file, basename(file))
-        if(! file.exists(zip_file) )
-            stop("Could not find the compressed file.")
+        zip::zip(file.zip, basename(file))
+        if(! file.exists(file.zip) )
+            stop("Could not find the compressed file ${file.zip}.")
         file.remove(basename(file))
     },
     error = stop,
@@ -24,5 +25,5 @@ zip_file = function(file){
         setwd(oldwd)
     })
 
-    return(zip_file)
+    return(file.zip)
 }
