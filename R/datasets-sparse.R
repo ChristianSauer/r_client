@@ -48,7 +48,7 @@ create_tmp_files = function(matrix, cell_metadata, gene_metadata, tmpdir=NULL){
 
 zip_file = function(file){
     message(stringr::str_interp("compressing file '${file}', this may take a while..."))
-    zip_file <- paste(c(file, "zip"), collapse=".")
+    zip_file <- paste(c(normalizePath(file), "zip"), collapse=".")
     oldwd = getwd()
 
     tryCatch({
