@@ -1,5 +1,5 @@
 library(stringr)
-library(zip)
+library(R.utils)
 
 get_default_headers <- function(connection){
   client_version = getNamespaceVersion("fastgenomicsRclient")
@@ -9,21 +9,20 @@ get_default_headers <- function(connection){
 
 zip_file = function(file){
     file <- normalizePath(file)
-    file.zip <- paste(c(file, "zip"), collapse=".")
+    file.gz <- paste(c(file, "gz"), collapse=".")
     message(stringr::str_interp("compressing file '${file}', this may take a while..."))
     oldwd = getwd()
 
     tryCatch({
         setwd(dirname(file))
-        zip::zip(file.zip, basename(file))
-        if(! file.exists(file.zip) )
-            stop("Could not find the compressed file ${file.zip}.")
-        file.remove(basename(file))
+        gzip(filename = basename(file), destname = file.gz, remove = T)
+        if(! file.exists(file.gz) )
+            stop("Could not find the compressed file ${file.gz}.")
     },
     error = stop,
     finally = {
         setwd(oldwd)
     })
 
-    return(file.zip)
+    return(file.gz)
 }
