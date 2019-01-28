@@ -18,9 +18,8 @@ Imports:
     lubridate,
     uuid (>= 0.1.2),
     readr,
-    Matrix
-Remotes:
-    r-lib/zip
+    Matrix,
+    R.utils
 Suggests: 
     testthat
 RoxygenNote: 6.1.1
