@@ -47,6 +47,17 @@ get_app <- function(connection, app_id){
   return(result)
 }
 
+#' Delete an application
+#'
+#' @param connection  The connection to be used, call \code{\link{connect}} to obtain one.
+#' @param app_id Id of the app to be deleted.  To get app ids call \code{\link{get_apps}}.
+delete_app <- function(connection, app_id){
+    url <-  paste(connection@base_url, "app/api/v1/apps/", curl::curl_escape(app_id) , sep="")
+    headers <- get_default_headers(connection)
+    response <- httr::DELETE(url, headers)
+    return(response)
+}
+
 #' Creates a new app
 #'
 #' Pulls an app from a docker registry (e.g. the docker hub or a private registry) and installs it in FASTGenomics. The image will be pulled by FASTGenomics
