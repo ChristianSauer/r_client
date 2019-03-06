@@ -20,5 +20,5 @@ The PAT is stored securaly in a keyring, which can only be accessed by your user
 WARNINIG: NEVER commit passwords, Tokens or PATs to a GIT repository or share them in any way! The token can be used to do any action on your behalf.
 }
 \examples{
-connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Beaer ey...")
+fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")
 }

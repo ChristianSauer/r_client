@@ -9,15 +9,16 @@ connect(base_url, email)
 \arguments{
 \item{base_url}{The url of the instance, e.g. https://fastgenomics.org/}
 
-\item{bearer_token}{The API token of your user, you can get it here: {base_url}/ids/Account/ApiTokenLogin}
+\item{email}{The email address of your account}
 }
 \value{
 a connection object
 }
 \description{
-Note that our tokens have an expiration date, e.g. after 6 hours you will need to obtain a new Bearer token an create a new connection object.
 WARNINIG: NEVER commit passwords or Tokens to a GIT repository or share them in any way! The token can be used to do any action on your behalf.
+In the background, your PAT is used.
 }
 \examples{
-connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Beaer ey...")
+fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")
+connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com")
 }
