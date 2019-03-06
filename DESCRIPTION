@@ -19,7 +19,9 @@ Imports:
     uuid (>= 0.1.2),
     readr,
     Matrix,
-    R.utils
+    R.utils,
+    keyring,
+    R6
 Suggests: 
     testthat
 RoxygenNote: 6.1.1

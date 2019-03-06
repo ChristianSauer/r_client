@@ -4,7 +4,7 @@
 \alias{connect}
 \title{Get a FastGenomics connection object to a specific FASTGenomics instance}
 \usage{
-connect(base_url, bearer_token)
+connect(base_url, email)
 }
 \arguments{
 \item{base_url}{The url of the instance, e.g. https://fastgenomics.org/}

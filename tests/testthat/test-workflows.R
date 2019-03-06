@@ -1,11 +1,12 @@
 context("test-workflows")
 context("test-apps")
 
-BEARER_FROM_ENV = Sys.getenv("FGBEARERTOKEN")
+BEARER_PAT = Sys.getenv("FG_PAT")
+BEARER_EMAIL = Sys.getenv("FG_EMAIL")
 BASE_URL = Sys.getenv("FGBASEURL")
+default_conn <- FGConnection$new(base_url = BASE_URL, pat = BEARER_PAT, email = BEARER_EMAIL)
 
 test_that("can get workflows successfully", {
-  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   public_workflows <- get_workflows(default_conn, "All")@content
   n_public_workflows = length(public_workflows)
   expect_gte(n_public_workflows, 1 )
@@ -16,7 +17,6 @@ test_that("can get workflows successfully", {
 })
 
 test_that("can get a workflow sucessfully", {
-  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   public_workflows <- get_workflows(default_conn, "All")@content
   id = public_workflows[[1]][["id"]]
 
@@ -26,7 +26,6 @@ test_that("can get a workflow sucessfully", {
 })
 
 test_that("can get a workflow with fullDetail sucessfully", {
-  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   public_workflows <- get_workflows(default_conn, "All")@content
   id = public_workflows[[1]][["id"]]
   workflow <- get_workflow(default_conn, id, fullDetail = TRUE)
@@ -34,7 +33,6 @@ test_that("can get a workflow with fullDetail sucessfully", {
 })
 
 test_that("can get an edit model sucessfully", {
-  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   public_workflows <- get_workflows(default_conn, "All")@content
   id = public_workflows[[1]][["id"]]
 
@@ -44,7 +42,6 @@ test_that("can get an edit model sucessfully", {
 })
 
 test_that("create a workflow works", {
-  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   public_workflows <- get_workflows(default_conn, "All")@content
   id = public_workflows[[1]][["id"]]
 
@@ -57,20 +54,16 @@ test_that("create a workflow works", {
 })
 
 test_that("create a workflow rejects empty file", {
-  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
-
   expect_error(create_workflow(default_conn, "tmp"), "The file")
 })
 
 test_that("create a workflow rejects files not looking like json", {
-  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   tmp <- tempfile()
   readr::write_file("{", tmp)
   expect_error(create_workflow(default_conn, tmp), "The file")
 })
 
 test_that("can save a workflow to disk", {
-  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   tmp <- tempfile()
   public_workflows <- get_workflows(default_conn, "All")@content
   id = public_workflows[[1]][["id"]]
@@ -85,7 +78,6 @@ test_that("can save a workflow to disk", {
 })
 
 test_that("modify a workflow works", {
-  default_conn <- new("FGConnection", base_url = BASE_URL , bearer_token = BEARER_FROM_ENV)
   public_workflows <- get_workflows(default_conn, "All")@content
   id = public_workflows[[1]][["id"]]
 

@@ -20,7 +20,7 @@ library(curl) # not a dep, imported through httr
 #' apps <- fastgenomicsRclient::get_app(connection)
 #' print(apps@content) # all apps available to you
 get_apps <- function(connection, scope="All"){
-  url <-  paste(connection@base_url, "app/api/v1/apps", sep="")
+  url <-  paste(connection$base_url, "app/api/v1/apps", sep = "")
 
   result <- get_data_list(connection, scope, url, "app")
 
@@ -40,7 +40,7 @@ get_apps <- function(connection, scope="All"){
 #' app <- fastgenomicsRclient::get_apps(connection, "abc")
 #' print(app@content) # the app
 get_app <- function(connection, app_id){
-  url <-  paste(connection@base_url, "app/api/v1/apps/", curl::curl_escape(app_id) , sep="")
+  url <-  paste(connection$base_url, "app/api/v1/apps/", curl::curl_escape(app_id) , sep = "")
 
   result <- get_data(connection, app_id, url, "app")
 
@@ -52,7 +52,7 @@ get_app <- function(connection, app_id){
 #' @param connection  The connection to be used, call \code{\link{connect}} to obtain one.
 #' @param app_id Id of the app to be deleted.  To get app ids call \code{\link{get_apps}}.
 delete_app <- function(connection, app_id){
-    url <-  paste(connection@base_url, "app/api/v1/apps/", curl::curl_escape(app_id) , sep="")
+    url <-  paste(connection$base_url, "app/api/v1/apps/", curl::curl_escape(app_id) , sep = "")
     headers <- get_default_headers(connection)
     response <- httr::DELETE(url, headers)
     return(response)
@@ -80,29 +80,28 @@ delete_app <- function(connection, app_id){
 #' status <- poll_app_until_validated(connection, result) # will return FALSE, since neither image nor credentials are valid
 create_app <- function(connection, source_image_name, image_name="", registry="", username="", password=""){
   assert_is_connection(connection)
-  assert_token_is_not_expired(connection)
 
   headers <- get_default_headers(connection)
-  url <-  paste(connection@base_url, "app/api/v1/apps", sep="")
+  url <-  paste(connection$base_url, "app/api/v1/apps", sep = "")
 
-  body = list(source_image_name=source_image_name)
+  body = list(source_image_name = source_image_name)
 
-  if (image_name != ""){
+  if (image_name != "") {
     body["image_name"] = image_name
   }
 
 
-  if (registry != ""){
+  if (registry != "") {
     body["registry"] = registry
   }
 
 
-  if (username != ""){
+  if (username != "") {
     body["username"] = username
   }
 
 
-  if (password != ""){
+  if (password != "") {
     body["password"] = password
   }
 
@@ -125,11 +124,11 @@ create_app <- function(connection, source_image_name, image_name="", registry=""
 #' See create_app example
 poll_app_until_validated <- function(connection, app_id, poll_intervall=10){
   assert_is_connection(connection)
-  assert_token_is_not_expired(connection)
+
   if (is(app_id, "FGResponse"))
   {
     dtype <- app_id@DataType
-    if (!dtype == "app"){
+    if (!dtype == "app") {
       stop(stringr::str_interp("Only FgResponse with a DataType of 'app' can be polled! This is a ${dtype}"))
     }
     app_id <- app_id@Id
@@ -141,7 +140,7 @@ poll_app_until_validated <- function(connection, app_id, poll_intervall=10){
   }
 
   headers <- get_default_headers(connection)
-  url <-  paste(connection@base_url, "app/api/v1/apps/", curl::curl_escape(app_id), "/upload_status", sep="")
+  url <-  paste(connection$base_url, "app/api/v1/apps/", curl::curl_escape(app_id), "/upload_status", sep = "")
   last_check <- lubridate::ymd("2010/03/17") # something old
   while (TRUE) {
     Sys.sleep(poll_intervall)
@@ -152,12 +151,12 @@ poll_app_until_validated <- function(connection, app_id, poll_intervall=10){
 
 
     for (msg in parsed[["validation_messages"]]) {
-      msg_time <- lubridate::as_datetime(msg[["time_stamp"]], tz="UTC")
-      if (msg_time > last_check){
+      msg_time <- lubridate::as_datetime(msg[["time_stamp"]], tz = "UTC")
+      if (msg_time > last_check) {
         status <- msg[["status"]]
         msg_text <- msg[["message"]]
 
-        if (status == "Error"){
+        if (status == "Error") {
           warning(stringr::str_interp("${msg_time} | ${status} | ${msg_text}"))
         }
         else{
