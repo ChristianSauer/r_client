@@ -25,10 +25,9 @@ FGConnection <- R6Class(
     base_url = "",
     pat = "",
     email = "",
-    bearer_token = "",
     get_bearer_token = function() {
-      is_empty <- self$bearer_token == ""
-      if (is_empty || check_if_token_is_not_expired(self$bearer_token))
+      is_empty <- private$bearer_token == ""
+      if (is_empty || check_if_token_is_not_expired(private$bearer_token))
       {
         url <- paste(self$base_url, "ids/api/v1/token/pat", sep = "")
         response <-
@@ -42,10 +41,10 @@ FGConnection <- R6Class(
           )
         httr::stop_for_status(response)
         parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-        self$bearer_token <- parsed[["access_token"]]
+        private$bearer_token <- parsed[["access_token"]]
       }
 
-      return(self$bearer_token)
+      return(private$bearer_token)
     },
     get_token_lifetime = function(){
        token <- self$get_bearer_token()
@@ -71,7 +70,8 @@ FGConnection <- R6Class(
       cat("  Time until token refresh (h):  ", self$get_token_lifetime(), "\n", sep = "")
       invisible(self)
     }
-  )
+  ),
+  private = list(bearer_token = "")
 )
 
 
