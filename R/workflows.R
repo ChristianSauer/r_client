@@ -45,6 +45,27 @@ get_workflow <-  function(connection, workflow_id, fullDetail=FALSE){
   return(result)
 }
 
+#' Get a specific workflow
+#'
+#' This model is not suitable for editing OR as base template for new workflows, call get_edit_model_of_workflow to obtain such a workflow!
+#'
+#' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
+#' @param workflow_id The id of the workflow, usually looks like wf_.....
+#'
+#' @return A FGResponse object
+#' @export
+#'
+#' @examples
+#' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Beaer ey...")
+#' workflows <- fastgenomicsRclient::delete_workflow(connection, "wf_abc")
+#' print(workflows@content) # the workflow
+delete_workflow <-  function(connection, workflow_id){
+    url <-  paste(connection@base_url, "workflow/api/v1/workflows/", workflow_id , sep="")
+    headers <- get_default_headers(connection)
+    response <- httr::DELETE(url, headers)
+    return(response)
+}
+
 #' Get a specific workflow as an editable model
 #'
 #' This model is suitable to be used as a base for new workflows.
