@@ -15,7 +15,7 @@ install_github("FASTGenomics/r_client")
 ## Example
 
 You need to get a bearer token to use this api.  You can get this
-token at: https://fastgenomics.org/ids/Account/ApiTokenLogin
+token at: https://prod.fastgenomics.org/webclient/Home/BearerToken/
 
 *WARNING*: Never commit this token to a repository or share it
 otherwise! It can be used to impersonate you
