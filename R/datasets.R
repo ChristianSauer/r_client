@@ -21,8 +21,8 @@ scopes = list("All", "Public", "Private")
 #' datasets <- fastgenomicsRclient::get_datasets(connection)
 #' print(datasets@content) # all datasets available to you
 get_datasets <- function(connection, scope="All"){
-  url <-  paste(connection@base_url, "dataset/api/v1/datasets", sep="")
-  result <- get_data_list(connection, scope, url, "dataset", queries=list(includeHateoas="true" ))
+  url <-  paste(connection$base_url, "dataset/api/v1/datasets", sep = "")
+  result <- get_data_list(connection, scope, url, "dataset", queries = list(includeHateoas = "true" ))
 
   return(result)
 }
@@ -43,7 +43,7 @@ get_datasets <- function(connection, scope="All"){
 #' datasets <- fastgenomicsRclient::get_dataset(connection, "dts_abc")
 #' print(datasets@content) # the dataset
 get_dataset <- function(connection, dataset_id){
-  url <- paste(connection@base_url, "dataset/api/v1/datasets/", dataset_id, sep="")
+  url <- paste(connection$base_url, "dataset/api/v1/datasets/", dataset_id, sep = "")
   result <- get_data(connection, dataset_id, url, "dataset")
   return(result)
 }
@@ -69,7 +69,7 @@ download_dataset <- function(connection, dataset_id, folder_path){
 
   dataset <- get_dataset(connection, dataset_id)
   download_link <- ""
-  for (lnk in dataset@content[["links"]]){
+  for (lnk in dataset@content[["links"]]) {
     rel <- lnk[["rel"]]
 
     if (rel == "download-dataset-complete-zip")
@@ -84,7 +84,7 @@ download_dataset <- function(connection, dataset_id, folder_path){
     stop(msg)
   }
 
- url <- paste(substr(connection@base_url, 1, nchar(connection@base_url)-1), download_link, sep="")
+ url <- paste(substr(connection$base_url, 1, nchar(connection$base_url) - 1), download_link, sep = "")
  headers <- get_default_headers(connection)
  headers["output"] = httr::write_disk(file.path(folder_path, stringr::str_interp("${dataset_id}.zip")))["output"]
  headers <- c(headers, httr::progress())
@@ -156,12 +156,11 @@ download_dataset <- function(connection, dataset_id, folder_path){
 create_dataset <- function(connection, title, description, short_description, organism_id, matrix , matrix_format, gene_nomenclature, optional_parameters=NULL)
 {
   assert_is_connection(connection)
-  assert_token_is_not_expired(connection)
 
   gene_nomenclatures <- get_valid_gene_nomenclatures(connection)
   if (!gene_nomenclature %in% gene_nomenclatures)
   {
-    str = paste(as.character(gene_nomenclatures), collapse=", ")
+    str = paste(as.character(gene_nomenclatures), collapse = ", ")
     stop(stringr::str_interp("The Gene Nomenclature '${gene_nomenclature} is unknown. Choose one of: ${str}' "))
   }
 
@@ -173,12 +172,12 @@ create_dataset <- function(connection, title, description, short_description, or
   matrix_formats <- get_valid_matrix_formats(connection)
   if (!matrix_format %in% matrix_formats)
   {
-    str = paste(as.character(matrix_formats), collapse=", ")
+    str = paste(as.character(matrix_formats), collapse = ", ")
     stop(stringr::str_interp("The Matrix format '${matrix_format}' is unknown. Choose one of: ${str}' "))
   }
 
   matrix_path <- ""
-  if (is.character(matrix)){
+  if (is.character(matrix)) {
     matrix_path <- matrix
   }
   else if (is.data.frame(matrix))
@@ -208,7 +207,7 @@ create_dataset <- function(connection, title, description, short_description, or
 
   headers <- get_default_headers(connection)
   headers <- c(headers, httr::progress("up")) # adds a nice progress bar
-  url <-  paste(connection@base_url, "dataset/api/v1/datasets", sep="")
+  url <-  paste(connection$base_url, "dataset/api/v1/datasets", sep = "")
 
   body = list(
     matrix  = httr::upload_file(matrix_path),
@@ -216,8 +215,8 @@ create_dataset <- function(connection, title, description, short_description, or
                           description = description,
                           short_description = short_description,
                           organism_id = organism_id,
-                          matrix_format= matrix_format,
-                          gene_nomenclature=gene_nomenclature)
+                          matrix_format = matrix_format,
+                          gene_nomenclature = gene_nomenclature)
 
   body = c(body, optional_data)
 
@@ -240,11 +239,10 @@ create_dataset <- function(connection, title, description, short_description, or
 #' See create_dataset example
 poll_dataset_until_validated <- function(connection, dataset_id, poll_intervall=10){
   assert_is_connection(connection)
-  assert_token_is_not_expired(connection)
   if (is(dataset_id, "FGResponse"))
   {
     dtype <- dataset_id@DataType
-    if (!dtype == "dataset"){
+    if (!dtype == "dataset") {
       stop(stringr::str_interp("Only FgResponse with a DataType of 'dataset' can be polled! This is a ${dtype}"))
     }
     dataset_id <- dataset_id@Id
@@ -256,7 +254,7 @@ poll_dataset_until_validated <- function(connection, dataset_id, poll_intervall=
   }
 
   headers <- get_default_headers(connection)
-  url <-  paste(connection@base_url, "dataset/api/v1/datasets/", dataset_id, "/status", sep="")
+  url <-  paste(connection$base_url, "dataset/api/v1/datasets/", dataset_id, "/status", sep = "")
   last_check <- lubridate::ymd("2010/03/17") # something old
   while (TRUE) {
     Sys.sleep(poll_intervall)
@@ -267,13 +265,13 @@ poll_dataset_until_validated <- function(connection, dataset_id, poll_intervall=
 
 
     for (msg in parsed) {
-      msg_time <- lubridate::as_datetime(msg[["timestamp"]], tz="UTC")
-      if (msg_time > last_check){
+      msg_time <- lubridate::as_datetime(msg[["timestamp"]], tz = "UTC")
+      if (msg_time > last_check) {
         status <- msg[["status"]]
         file_name <- msg[["file_name"]]
         msg_text <- msg[["msg"]]
 
-        if (status == "Error"){
+        if (status == "Error") {
           warning(stringr::str_interp("${msg_time} | ${status} | ${file_name} | ${msg_text}"))
         }
         else{
@@ -356,10 +354,9 @@ get_valid_current_normalization_status = function(connection){
 
 get_info <- function(connection, url){
   assert_is_connection(connection)
-  assert_token_is_not_expired(connection)
 
   headers <- get_default_headers(connection)
-  url <- paste(connection@base_url, url, sep="")
+  url <- paste(connection$base_url, url, sep = "")
   response <- httr::GET(url, headers)
   httr::stop_for_status(response)
   parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
@@ -371,12 +368,12 @@ get_df_as_file <- function(df, file_name){
   column_names <- names(df)
 
   tempdir <- tempdir()
-  rand_folder <- stringi::stri_rand_strings(n=1, length = 20)[[1]]
+  rand_folder <- stringi::stri_rand_strings(n = 1, length = 20)[[1]]
   message(stringr::str_interp("Saving dataframe for '${file_name}' to disk"))
   tmp_dir <- file.path(tempdir, rand_folder)
   tmp_file <- file.path(tmp_dir, file_name )
   dir.create(tmp_dir)
-  write.csv(df, tmp_file, row.names=FALSE)
+  write.csv(df, tmp_file, row.names = FALSE)
 
   message(stringr::str_interp("compressing file '${file_name}', this may take a while"))
   file.zip = zip_file(file_name)

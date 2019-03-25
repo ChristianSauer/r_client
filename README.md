@@ -28,18 +28,18 @@ print(datasets@content) # all datasets available to you
 
 ## Run tests
 
-If you want the unit tests of this package, set two envrionment variables
+If you want the unit tests of this package, set these environment variables
+Note: You can obtain a PAT (Personal access token) using this [guide](https://github.com/FASTGenomics/fastgenomics-docs/blob/releases/next/doc/api/authorization%20guide.md)
+In no circumstances, share your PAT with anyone or commit it to source control!
 
 ```r
-Sys.setenv(FGBEARERTOKEN = "YOUR TOKEN")
-Sys.setenv(FGBASEURL = "URL")
+Sys.setenv(FGBASEURL="URL", FG_EMAIL="TEST_ACCOUNT", FG_PAT="PAT")
 ```
 
 then run the tests through RStudio (Build -> Test Pakcage) or run
 `devtools::test()`
 
 ## Troubleshooting
-
 
 ### HTTP2 framing error
 

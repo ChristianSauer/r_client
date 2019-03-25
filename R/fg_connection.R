@@ -3,68 +3,103 @@ library(stringr)
 library(jose)
 library(jsonlite)
 library(stringr)
-
-
-check_FGConnection <- function(object){
-    errors <- character()
-    if (object@base_url == "") {
-        msg <- stringr::str_interp("URL Cannot be empty")
-        errors <- c(errors, msg)
-    }
-
-    if (!startsWith(object@bearer_token, "Bearer ey"))
-    {
-        msg <- stringr::str_interp("The Bearer Token should look like 'Bearer ey.....'")
-        errors <- c(errors, msg)
-    }
-
-    if (length(errors) == 0) TRUE else errors
-}
+library(httr)
+library(R6)
 
 #' A FGConnection
 #'
 #'  Make sure that you never share an environment which contains such an object.
 #'
 #' @slot base_url the URL.
-#' @slot bearer_token the token.
+#' @slot pat the personal access token.
+#' @slot the email address of the account
 #'
 #' @return class FGConnection
 #' @export
 #'
 #' @examples
 #' None
-setClass("FGConnection",
-         slots = c(
-             base_url = "character",
-             bearer_token = "character"
-         ),
-         validity = check_FGConnection
-         )
+FGConnection <- R6Class(
+  "FGConnection",
+  list(
+    base_url = "",
+    pat = "",
+    email = "",
+    get_bearer_token = function() {
+      is_empty <- private$bearer_token == ""
+      if (is_empty || check_if_token_is_not_expired(private$bearer_token))
+      {
+        url <- paste(self$base_url, "ids/api/v1/token/pat", sep = "")
+        response <-
+          httr::POST(
+            url,
+            body = list(
+              Email = self$email,
+              PersonalAccessToken = self$pat
+            ),
+            encode = "json"
+          )
+        httr::stop_for_status(response)
+        parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
+        private$bearer_token <- parsed[["access_token"]]
+      }
 
-assert_is_connection <- function(connection){
-    if (!is(connection, "FGConnection"))
-    {
-        stop("the connection is invalid, call fastgenomicsRClient::connect to obtain a valid connection")
+      return(private$bearer_token)
+    },
+    get_token_lifetime = function(){
+       token <- self$get_bearer_token()
+       data <- get_data_from_token(token)
+       exp <- data[["exp"]]
+       date <- as.POSIXct(exp, origin = "1970-01-01")
+       date <- date - Sys.time()
+       return(date)
+    },
+    initialize = function(base_url, pat, email) {
+      stopifnot(is.character(base_url), length(base_url) == 1, base_url != "")
+      stopifnot(is.character(pat), length(pat) == 1, pat != "")
+      stopifnot(is.character(email), length(email) == 1, email != "")
+
+      self$base_url <- base_url
+      self$pat <- pat
+      self$email <- email
+    },
+    print = function(...) {
+      cat("FGConnection: \n")
+      cat("  Server: ", self$base_url, "\n", sep = "")
+      cat("  Email: ", self$email, "\n", sep = "")
+      cat("  Time until token refresh (h):  ", self$get_token_lifetime(), "\n", sep = "")
+      invisible(self)
     }
+  ),
+  private = list(bearer_token = "")
+)
+
+
+assert_is_connection <- function(connection) {
+  if (!is(connection, "FGConnection"))
+  {
+    stop(
+      "the connection is invalid, call fastgenomicsRClient::connect to obtain a valid connection"
+    )
+  }
 }
 
-#' Helper Function to check if a FGConnection is still valid. Normally called automatically.
-#'
-#' @param connection The connection to be tested
-#'
-#' @return None
-#' @export
-#'
-#' @examples
-#' None
-assert_token_is_not_expired <- function(connection){
-  jwt <-stringr::str_replace(connection@bearer_token, "Bearer ", "")
+get_data_from_token <- function(bearer_token) {
+  jwt <- stringr::str_replace(bearer_token, "Bearer ", "")
   (strings <- strsplit(jwt, ".", fixed = TRUE)[[1]])
 
   payload <- rawToChar(jose::base64url_decode(strings[2]))
   data <- jsonlite::fromJSON(payload, simplifyVector = FALSE)
-  if (data[["exp"]] < as.integer(as.POSIXct(Sys.time())))
+
+  return(data)
+}
+
+check_if_token_is_not_expired <- function(bearer_token) {
+  data <- get_data_from_token(bearer_token)
+  # refresh tokens if the token has less than two hours left
+  if (data[["exp"]] < as.integer(as.POSIXct(Sys.time() + 2*60*60)))
   {
-    stop("Your Bearer Token has expired! Please obtain a new Bearer Token")
+    return(TRUE)
   }
+  return(FALSE)
 }

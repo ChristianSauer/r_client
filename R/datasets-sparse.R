@@ -7,32 +7,32 @@ matrix_to_file = function(spmat, dir){
     spmat = as(spmat, "dgTMatrix")
     file_name = file.path(dir, "matrix.csv")
     df = data.frame(
-        cellId = get_cell_ids(spmat)[spmat@j+1],
-        geneId = get_gene_ids(spmat)[spmat@i+1],
+        cellId = get_cell_ids(spmat)[spmat@j + 1],
+        geneId = get_gene_ids(spmat)[spmat@i + 1],
         expression = spmat@x)
     message(stringr::str_interp("Saving expression matrix in a sparse format as '${file_name}'"))
-    write.csv(df, file_name, row.names=FALSE)
+    write.csv(df, file_name, row.names = FALSE)
     return(file_name)
 }
 
 gene_metadata_to_file = function(gene_metadata, dir){
     file_name = file.path(dir, "gene_metadata.csv")
     message(stringr::str_interp("Saving gene metadata as '${file_name}'"))
-    write.csv(gene_metadata, file_name, row.names=FALSE)
+    write.csv(gene_metadata, file_name, row.names = FALSE)
     return(file_name)
 }
 
 cell_metadata_to_file = function(cell_metadata, dir){
     file_name = file.path(dir, "cell_metadata.csv")
     message(stringr::str_interp("Saving cell metadata as '${file_name}'"))
-    write.csv(cell_metadata, file_name, row.names=FALSE)
+    write.csv(cell_metadata, file_name, row.names = FALSE)
     return(file_name)
 }
 
 create_tmp_files = function(matrix, cell_metadata, gene_metadata, tmpdir=NULL){
-    if(is.null(tmpdir)){
+    if (is.null(tmpdir)) {
         tmpdir = file.path(tempdir(),
-                           stringi::stri_rand_strings(n=1, length = 20)[[1]])
+                           stringi::stri_rand_strings(n = 1, length = 20)[[1]])
     }
     dir.create(tmpdir)
     tmpdir = normalizePath(tmpdir)
@@ -86,42 +86,41 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
                               optional_parameters=FGDatasetUploadParameters() , tmpdir=NULL)
 {
     assert_is_connection(connection)
-    assert_token_is_not_expired(connection)
 
     match.arg(gene_nomenclature, c("Entrez", "GeneSymbol", "Ensembl"))
 
-    if(! (organism_id %in% c(9606, 10090)))
+    if (!(organism_id %in% c(9606, 10090)))
         stop(stringr::str_interp("The organism id '${organism_id}' is not an integer. Valid NCBI Ids are integers, e.g. Homo Sapiens: 9606 Mouse: 10090"))
 
     ## check if the matrix is sparse
-    if( !is(matrix, "sparseMatrix") ){
+    if ( !is(matrix, "sparseMatrix") ) {
         stop("Unsupported matrix format, expected a \"sparseMatrix\".")
     }
-    if( !is(cell_metadata, "data.frame")){
+    if ( !is(cell_metadata, "data.frame")) {
         stop("cell_metadata must be a data frame.")
     }
-    if( !is(gene_metadata, "data.frame")){
+    if ( !is(gene_metadata, "data.frame")) {
         stop("gene_metadata must be a data frame.")
     }
-    if( ! 'cellId' %in% colnames(cell_metadata) ){
+    if ( !'cellId' %in% colnames(cell_metadata) ) {
         stop("cell_metadata must have a cellId column.")
     }
-    if( ! 'geneId' %in% colnames(gene_metadata) ){
+    if ( !'geneId' %in% colnames(gene_metadata) ) {
         stop("gene_metadata must have a geneId column.")
     }
-    if( length(intersect(get_cell_ids(matrix), cell_metadata$cellId)) == 0 ){
+    if ( length(intersect(get_cell_ids(matrix), cell_metadata$cellId)) == 0 ) {
         stop("No common cell names found in matrix and cell_metadata.")
     }
-    if( length(intersect(get_gene_ids(matrix), gene_metadata$geneId)) == 0 ){
+    if ( length(intersect(get_gene_ids(matrix), gene_metadata$geneId)) == 0 ) {
         stop("No common gene names found in matrix and gene_metadata.")
     }
-    if( nchar(title) < 5 | nchar(title) > 50 ){
+    if ( nchar(title) < 5 | nchar(title) > 50 ) {
         stop("Title has to be a string with length between 5 and 50.")
     }
 
     # adds a nice progress bar
     headers <- c(get_default_headers(connection), httr::progress("up"))
-    url <- paste(connection@base_url, "dataset/api/v1/datasets", sep="")
+    url <- paste(connection$base_url, "dataset/api/v1/datasets", sep="")
 
     files = create_tmp_files(matrix, cell_metadata, gene_metadata, tmpdir=tmpdir)
     if(zipfiles)
@@ -177,7 +176,7 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
 create_dataset_from_seurat <- function(connection, seurat_obj, ...){
     matrix = as(seurat_obj@data, "dgTMatrix")
     cell_metadata = seurat_obj@meta.data
-    cell_metadata = cbind(cellId=rownames(cell_metadata), cell_metadata)
+    cell_metadata = cbind(cellId = rownames(cell_metadata), cell_metadata)
     gene_metadata = data.frame(geneId = seurat_obj@data@Dimnames[[1]])
 
     create_dataset_df(connection,

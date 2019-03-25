@@ -15,7 +15,7 @@ library(readr)
 #' workflows <- fastgenomicsRclient::get_workflows(connection)
 #' print(workflows@content) # all workflows available to you
 get_workflows <- function(connection, scope="All"){
-  url <-  paste(connection@base_url, "workflow/api/v1/workflows", sep="")
+  url <-  paste(connection$base_url, "workflow/api/v1/workflows", sep = "")
 
   result <- get_data_list(connection, scope, url, "workflow")
 
@@ -38,9 +38,9 @@ get_workflows <- function(connection, scope="All"){
 #' workflows <- fastgenomicsRclient::get_workflow(connection, "wf_abc")
 #' print(workflows@content) # the workflow
 get_workflow <-  function(connection, workflow_id, fullDetail=FALSE){
-  url <-  paste(connection@base_url, "workflow/api/v1/workflows/", workflow_id , sep="")
+  url <-  paste(connection$base_url, "workflow/api/v1/workflows/", workflow_id , sep = "")
 
-  result <- get_data(connection, workflow_id, url, "workflow", queries = list("fullDetail"=fullDetail))
+  result <- get_data(connection, workflow_id, url, "workflow", queries = list("fullDetail" = fullDetail))
 
   return(result)
 }
@@ -81,7 +81,7 @@ delete_workflow <-  function(connection, workflow_id){
 #' workflow <- fastgenomicsRclient::get_edit_model_of_workflow(connection, "wf_abc")
 #' print(workflows@content) # the workflows as an easily usable model
 get_edit_model_of_workflow <- function(connection, workflow_id){
-  url <-  paste(connection@base_url, "workflow/api/v1/workflows/", workflow_id , sep="")
+  url <-  paste(connection$base_url, "workflow/api/v1/workflows/", workflow_id , sep = "")
 
   result <- get_data(connection, workflow_id, url, "workflow", additional_headers = httr::accept("application/vnd.fastgenomics.editworkflow+json") )
 
@@ -110,26 +110,24 @@ get_edit_model_of_workflow <- function(connection, workflow_id){
 #' # check that the Result is not an FGErrorResponse, if it is an error check the "errors" field on the object.
 create_workflow <- function(connection, path_to_workflow){
   assert_is_connection(connection)
-  assert_token_is_not_expired(connection)
 
-  if(!file.exists(path_to_workflow))
-  {
+  if (!file.exists(path_to_workflow)) {
     stop(stringr::str_interp("The file ${path_to_workflow} does not exist. Please provide a valid file."))
   }
 
   headers <- get_default_headers(connection)
-  url <-  paste(connection@base_url, "workflow/api/v1/workflows", sep="")
+  url <-  paste(connection$base_url, "workflow/api/v1/workflows", sep = "")
   body = readr::read_file(path_to_workflow)
 
   is_valid_json = jsonlite::validate(body)
-  if (!is_valid_json){
+  if (!is_valid_json) {
     stop(stringr::str_interp("The file ${path_to_workflow} does not appear to be json! Please provide a valid json file. Hint: Check the json structure using a text editor like VS Code."))
   }
   headers <- headers <- c(headers, httr::content_type_json())
   response <- httr::POST(url, headers, body = body)
   if (response["status_code"] == 422) {
     parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-    error <- new("FGErrorResponse", path = url, content = parsed, validation_errors=parsed[["errors"]])
+    error <- new("FGErrorResponse", path = url, content = parsed, validation_errors = parsed[["errors"]])
     return(error)
   }
 
@@ -137,7 +135,7 @@ create_workflow <- function(connection, path_to_workflow){
 
   parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
   workflow_id <- parsed[["id"]]
-  result <-new("FGResponse", path = url, content = parsed, DataType="workflow", Id=workflow_id, response=response )
+  result <- new("FGResponse", path = url, content = parsed, DataType="workflow", Id = workflow_id, response = response )
   return(result)
 }
 
@@ -166,30 +164,28 @@ create_workflow <- function(connection, path_to_workflow){
 #' print(updated_workflow@content[["version"]]) # should be 2.0
 modify_workflow <- function(connection, path_to_workflow, workflow_id){
   assert_is_connection(connection)
-  assert_token_is_not_expired(connection)
 
-  if(!file.exists(path_to_workflow))
-  {
+  if (!file.exists(path_to_workflow)) {
     stop(stringr::str_interp("The file ${path_to_workflow} does not exist. Please provide a valid file."))
   }
 
-  if(!startsWith(workflow_id, "wf_")){
+  if (!startsWith(workflow_id, "wf_")) {
     stop(stringr::str_interp("The workflow_id '${workflow_id}' must start with wf_"))
   }
 
   headers <- get_default_headers(connection)
-  url <-  paste(connection@base_url, "workflow/api/v1/workflows/", workflow_id, sep="")
+  url <-  paste(connection$base_url, "workflow/api/v1/workflows/", workflow_id, sep = "")
   body = readr::read_file(path_to_workflow)
 
   is_valid_json = jsonlite::validate(body)
-  if (!is_valid_json){
+  if (!is_valid_json) {
     stop(stringr::str_interp("The file ${path_to_workflow} does not appear to be json! Please provide a valid json file. Hint: Check the json structure using a text editor like VS Code."))
   }
   headers <- headers <- c(headers, httr::content_type_json())
   response <- httr::PUT(url, headers, body = body)
   if (response["status_code"] == 422) {
     parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-    error <- new("FGErrorResponse", path = url, content = parsed, validation_errors=parsed[["errors"]])
+    error <- new("FGErrorResponse", path = url, content = parsed, validation_errors = parsed[["errors"]])
     return(error)
   }
 
@@ -197,7 +193,7 @@ modify_workflow <- function(connection, path_to_workflow, workflow_id){
 
   parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
   workflow_id <- parsed[["id"]]
-  result <-new("FGResponse", path = url, content = parsed, DataType="workflow", Id=workflow_id, response=response )
+  result <- new("FGResponse", path = url, content = parsed, DataType = "workflow", Id = workflow_id, response = response )
   return(result)
 }
 
@@ -222,7 +218,7 @@ save_workflow_as_file <- function(workflow, path){
     stop("the given workflow is not a FGResponse")
   }
 
-  if (!workflow@DataType == "workflow"){
+  if (!workflow@DataType == "workflow") {
     stop("the given object has not the datatype workflow")
   }
   readr::write_file(httr::content(workflow@response, "text"), path)
