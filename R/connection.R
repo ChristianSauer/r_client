@@ -23,18 +23,18 @@ connect <- function(base_url, email) {
   }
 
   service_name <- get_service_name(base_url, email)
-  if (!service_name %in% keyring::key_list(keyring = "")$service)
+  if (nrow(keyring::key_list(servic = service_name)) == 0)
   {
     stop("The base url has no personal access token associated. Please call save_personal_access_token first")
   }
 
-  pat <- keyring::key_get(service_name, keyring = "")
+  pat <- keyring::key_get(service_name)
 
   is_valid <- pat_is_valid(base_url, email, pat)
   if (!is_valid)
   {
       tryCatch(
-          keyring::key_delete(service_name, keyring = ""),
+          keyring::key_delete(service_name),
           error = function (e) NULL)
     stop("The PAT was not valid anymore. Please create a new PAT, call save_personal_access_token and try again.")
   }
@@ -75,15 +75,15 @@ save_personal_access_token <- function(base_url, email) {
   }
 
   service_name <- get_service_name(base_url, email)
-  keyring::key_set(service_name, keyring = "")
+  keyring::key_set(service_name)
 
   # check if valid
-  is_valid <- pat_is_valid(base_url, email, keyring::key_get(service_name, keyring = ""))
+  is_valid <- pat_is_valid(base_url, email, keyring::key_get(service_name))
 
   if (!is_valid)
   {
       tryCatch(
-          keyring::key_delete(service_name, keyring = ""),
+          keyring::key_delete(service_name),
           error = function (e) NULL)
     stop("The PAT was not valid! Please provide a valid PAT")
   }
@@ -98,7 +98,7 @@ pat_is_valid <- function(base_url, email, pat)
     details <- httr::content(response, "text")
 
     tryCatch(
-        keyring::key_delete(service_name, keyring = ""),
+        keyring::key_delete(service_name),
         error = function (e) NULL)
 
     message("The PAT does not appear to be valid. Error Message:",
