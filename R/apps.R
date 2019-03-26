@@ -47,10 +47,10 @@ get_app <- function(connection, app_id){
   return(result)
 }
 
-#' Delete an application
+#' Delete an app. This will fail if the app is used in any workflow or analysis.
 #'
 #' @param connection  The connection to be used, call \code{\link{connect}} to obtain one.
-#' @param app_id Id of the app to be deleted.  To get app ids call \code{\link{get_apps}}.
+#' @param app_id Id of the app to be deleted. To get app ids call \code{\link{get_apps}}.
 delete_app <- function(connection, app_id){
     url <-  paste(connection$base_url, "app/api/v1/apps/", curl::curl_escape(app_id) , sep = "")
     headers <- get_default_headers(connection)
