@@ -37,7 +37,7 @@ print(datasets@content) # all datasets available to you
 ```
 
 **Warning** Never store your PAT in a variable or somewhere where it can be compromised. Anybody with your PAT can modify your data as he sees fit. If your PAT is compromised, [revoke it](https://prod.fastgenomics.org/ids/Manage/ManagePats?)!
-The connection object itself does not contain your PAT (this is actually stored on your PCs keyring), so if you compromise it, it is not as critical. Any connection object will expire in a few ours.
+The connection object should also not be shared, it contains your PAT.
 
 ## Run tests
 
