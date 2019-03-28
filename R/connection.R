@@ -35,7 +35,7 @@ connect <- function(base_url, email) {
   {
       tryCatch(
           keyring::key_delete(service_name),
-          error = function (e) NULL)
+          error = function(e) NULL)
     stop("The PAT was not valid anymore. Please create a new PAT, call save_personal_access_token and try again.")
   }
 
@@ -47,7 +47,7 @@ connect <- function(base_url, email) {
 #' Store a Personal Access Token (PAT) on your system
 #'
 #' You will be asked for a PAT, please generate it at: <base_url>/ids/Manage/ManagePats
-#' The PAT is stored securaly in a keyring, which can only be accessed by your user.
+#' The PAT is stored securely in a keyring, which can only be accessed by your user.
 #' WARNINIG: NEVER commit passwords, Tokens or PATs to a GIT repository or share them in any way! The token can be used to do any action on your behalf.
 #'
 #' @param base_url The url of the instance, e.g. https://fastgenomics.org/
@@ -75,16 +75,16 @@ save_personal_access_token <- function(base_url, email) {
   }
 
   service_name <- get_service_name(base_url, email)
-  keyring::key_set(service_name)
+  keyring::key_set(service_name, keyring = "")
 
-  # check if valid
-  is_valid <- pat_is_valid(base_url, email, keyring::key_get(service_name))
+  pat <- keyring::key_get(service_name, keyring = "")
+  is_valid <- pat_is_valid(base_url, email, pat)
 
   if (!is_valid)
   {
       tryCatch(
-          keyring::key_delete(service_name),
-          error = function (e) NULL)
+          keyring::key_delete(service_name, keyring = ""),
+          error = function(e) NULL)
     stop("The PAT was not valid! Please provide a valid PAT")
   }
 }
@@ -98,8 +98,8 @@ pat_is_valid <- function(base_url, email, pat)
     details <- httr::content(response, "text")
 
     tryCatch(
-        keyring::key_delete(service_name),
-        error = function (e) NULL)
+        keyring::key_delete(service_name, keyring = ""),
+        error = function(e) NULL)
 
     message("The PAT does not appear to be valid. Error Message:",
          call. = FALSE
