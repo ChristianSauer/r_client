@@ -23,7 +23,7 @@ connect <- function(base_url, email) {
   }
 
   service_name <- get_service_name(base_url, email)
-  if (nrow(keyring::key_list(servic = service_name)) == 0)
+  if (nrow(keyring::key_list(service = service_name)) == 0)
   {
     stop("The base url has no personal access token associated. Please call save_personal_access_token first")
   }
