@@ -22,6 +22,10 @@ connect <- function(base_url, email) {
       message("base_url is missing '/' at the end, appending...")
   }
 
+  if (email == "" ||  !is.character(email)) {
+    stop("The email must be a non empty string")
+  }
+
   service_name <- get_service_name(base_url, email)
   if (nrow(keyring::key_list(service = service_name)) == 0)
   {
@@ -37,6 +41,41 @@ connect <- function(base_url, email) {
           keyring::key_delete(service_name),
           error = function(e) NULL)
     stop("The PAT was not valid anymore. Please create a new PAT, call save_personal_access_token and try again.")
+  }
+
+  result <- FGConnection$new(base_url = base_url, pat = pat, email = email)
+  return(result)
+}
+
+#' Get a FastGenomics connection object to a specific FASTGenomics instance.
+#' This method is less secure than using connect.
+#' Use this method only if save_personal_access_token does not work, e.g. because your keyring does not work or you work in a Jupyter Notebook.
+#'
+#' WARNINIG: NEVER commit passwords or Tokens to a GIT repository or share them in any way! The token can be used to do any action on your behalf.
+#' In the background, your PAT is used.
+#'
+#' @param base_url The url of the instance, e.g. https://fastgenomics.org/
+#' @param email The email address of your account
+#' @param pat Your PAT, NEVER share this or store it in your history etc.
+#'
+#' @return a connection object
+#' @export
+#'
+#' @examples
+#' fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")
+#' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com")
+connect_with_pat <- function(base_url, email, pat) {
+  if (!endsWith(base_url, "/")) {
+    base_url = paste(base_url, "/", sep = "")
+    message("base_url is missing '/' at the end, appending...")
+  }
+
+  if (email == "" ||  !is.character(email)) {
+    stop("The email must be a non empty string")
+  }
+
+  if (pat == "" ||  !is.character(pat)) {
+    stop("The pat must be a non empty string")
   }
 
   result <- FGConnection$new(base_url = base_url, pat = pat, email = email)

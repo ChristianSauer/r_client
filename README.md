@@ -75,8 +75,7 @@ Due to a known bug in R kernel for jupyter the R session is [not considered
 interactive](https://github.com/IRkernel/IRkernel/issues/236) (`interactive()` returns
 `FALSE`).  This causes the password prompts used by the keyring package (either
 `askpass` or `getPass` depending on the version of keyring) to return `NULL` resulting
-in subsequent cryptic errors from keyring.  Because of that the r_client does not run in
-jupyter notebook/lab.
+in subsequent cryptic errors from keyring. In this case, use the method connect_with_pat which does not store your PAT securely, but in memory. Be aware that you should not store the PAT in the Notebook and avoid sharing the FgConnection object.
 
 ### Keyring backends
 

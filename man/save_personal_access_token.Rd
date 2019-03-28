@@ -16,7 +16,7 @@ Nothing
 }
 \description{
 You will be asked for a PAT, please generate it at: <base_url>/ids/Manage/ManagePats
-The PAT is stored securaly in a keyring, which can only be accessed by your user.
+The PAT is stored securely in a keyring, which can only be accessed by your user.
 WARNINIG: NEVER commit passwords, Tokens or PATs to a GIT repository or share them in any way! The token can be used to do any action on your behalf.
 }
 \examples{
