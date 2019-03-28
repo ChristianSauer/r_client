@@ -68,3 +68,24 @@ httr::set_config(config(http_version = 0))
 If you get 403 FORBIDDEN errors when using the API, your user account
 has not the necessary permissions for an operation.  Please contact us
 at feedback@fastgenomics.org to get access to such functions.
+
+### Jupyter notebook compatibility
+
+Due to a known bug in R kernel for jupyter the R session is [not considered
+interactive](https://github.com/IRkernel/IRkernel/issues/236) (`interactive()` returns
+`FALSE`).  This causes the password prompts used by the keyring package (either
+`askpass` or `getPass` depending on the version of keyring) to return `NULL` resulting
+in subsequent cryptic errors from keyring.  Because of that the r_client does not run in
+jupyter notebook/lab.
+
+### Keyring backends
+
+If for some reason the default backend of the keyring package does not work for you, you
+can switch to a different backend by specifying
+
+``` r
+options(keyring_backend = "env")
+```
+
+You can find the list of available backends
+[here](https://github.com/r-lib/keyring#configuring-an-os-specific-backend).
