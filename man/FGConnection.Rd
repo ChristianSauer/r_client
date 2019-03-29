@@ -12,7 +12,7 @@ FGConnection
 class FGConnection
 }
 \description{
-Make sure that you never share an environment which contains such an object.
+If Insecure = TRUE this object contains your PAT. Such objects should never committed to your R History or Source Control.
 }
 \section{Slots}{
 

@@ -30,8 +30,7 @@ First you need to authorize yourself. This packlage currently only supports logi
 If you need more guidance, please read our [Authorization Guide](https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md).
 
 ``` r
-fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com") # this will show a display where you can enter your PAT
-connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com")
+connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com") # this will show a display where you can enter your PAT
 datasets <- fastgenomicsRclient::get_datasets(connection)
 print(datasets@content) # all datasets available to you
 ```

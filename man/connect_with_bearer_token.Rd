@@ -22,6 +22,5 @@ If you use this method, please delete the FgConnection object when you are done.
 More Questions? Read our \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md}{in depth authorization Guide}
 }
 \examples{
-fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")
-connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com")
+connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com", "Bearer ey...")
 }

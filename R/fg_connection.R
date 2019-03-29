@@ -8,7 +8,8 @@ library(R6)
 
 #' A FGConnection
 #'
-#'  Make sure that you never share an environment which contains such an object.
+#' If Insecure = TRUE this object contains your PAT. Such objects should never committed to your R History or Source Control.
+#  Otherwise, the object should be relativly save, but avoid sharing if possible.
 #'
 #' @slot base_url the URL.
 #' @slot pat the personal access token.
@@ -26,7 +27,6 @@ FGConnection <- R6Class(
     pat = "",
     email = "",
     get_bearer_token = function() {
-
       if (private$only_bearer_token)
       {
         if (check_if_token_is_not_expired(private$bearer_token)) {
@@ -88,7 +88,7 @@ FGConnection <- R6Class(
       cat("  Email: ", self$email, "\n", sep = "")
       cat("  Time until token refresh (h):  ", self$get_token_lifetime(), "\n", sep = "")
       cat("  Insecure: ",  self$pat != "", " (if true, do not store this object in the history)", "\n", sep = "")
-      cat("  Bearer Token only: ",  private$only_bearer_token != "", "\n", sep = "")
+      cat("  Bearer Token only: ",  private$only_bearer_token, "\n", sep = "")
       invisible(self)
     }
   ),

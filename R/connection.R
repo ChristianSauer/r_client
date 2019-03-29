@@ -4,7 +4,8 @@ library(keyring)
 
 #' Get a FastGenomics connection object to a specific FASTGenomics instance
 #'
-#' Call \code{\link{save_personal_access_token}} first to store yor Personal Access Token PAT securely
+#' If you did not provide a Personal Access Token (PAT) for this URL / user combination, you will be prompted to enter your PAT.
+#' The PAT itself is stored in your systems keyring and not in your R History.
 #' WARNINIG: NEVER store your PAT in your R history or in Source Control.
 #' Anybody who has the PAT can take any action on FASTGenomics you can make.
 #' More Questions? Read our \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md}{in depth authorization Guide}
@@ -15,12 +16,17 @@ library(keyring)
 #' @return a connection object
 #' @export
 #' @examples
-#' fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")
 #' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com")
 connect <- function(base_url, email) {
   base_url <- validate_base_url(base_url)
 
   validate_email(email)
+
+  service_name <- get_service_name(base_url, email)
+  if (nrow(keyring::key_list(service = service_name)) == 0)
+  {
+    keyring::key_set(service_name)
+  }
 
   get_pat(base_url, email) # we call this once to check if we have a valid pat
 
@@ -32,7 +38,7 @@ connect <- function(base_url, email) {
 #' This method is less secure than using connect since the PAT will end in your R History
 #'
 #' If you use this method, please delete the FgConnection object when you are done.
-#' Use this method only if save_personal_access_token does not work, e.g. because your keyring does not work or you work in a Jupyter Notebook.
+#' Use this method only if connect does not work, e.g. because your keyring does not work or you work in a Jupyter Notebook.
 #' WARNINIG: NEVER store your PAT in your R history or in Source Control.
 #' Anybody who has the PAT can take any action on FASTGenomics you can make.
 #' More Questions? Read our \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md}{in depth authorization Guide}
@@ -45,8 +51,7 @@ connect <- function(base_url, email) {
 #' @export
 #'
 #' @examples
-#' fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")
-#' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com")
+#' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com", "pat")
 connect_with_pat_insecure <- function(base_url, email, pat) {
   base_url <- validate_base_url(base_url)
 
@@ -74,8 +79,7 @@ connect_with_pat_insecure <- function(base_url, email, pat) {
 #' @export
 #'
 #' @examples
-#' fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")
-#' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com")
+#' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com", "Bearer ey...")
 connect_with_bearer_token <- function(base_url, email, bearer_token) {
   base_url <- validate_base_url(base_url)
 
@@ -89,44 +93,10 @@ connect_with_bearer_token <- function(base_url, email, bearer_token) {
     stop("The bearer_token should start with 'Bearer ey'")
   }
 
+  bearer_token <- str_replace(bearer_token, "Bearer ", "") # will be added by inf again
+
   result <- FGConnection$new(base_url = base_url, pat = "", email = email, bt = bearer_token)
   return(result)
-}
-
-#' Store a Personal Access Token (PAT) on your system
-#'
-#' You will be asked for a PAT, please generate it at: <base_url>/ids/Manage/ManagePats
-#' The PAT is stored securely in a keyring, which can only be accessed by your user.
-#' WARNINIG: NEVER store your PAT in your R history or in Source Control.
-#' Anybody who has the PAT can take any action on FASTGenomics you can make.
-#' More Questions? Read our \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md}{in depth authorization Guide}
-#'
-#' @param base_url The url of the instance, e.g. https://fastgenomics.org/
-#' @param email The email address of your account
-#'
-#' @return Nothing
-#' @export
-#'
-#' @examples
-#' fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")
-save_personal_access_token <- function(base_url, email) {
-  base_url <- validate_base_url(base_url)
-
-  validate_email(email)
-
-  service_name <- get_service_name(base_url, email)
-  keyring::key_set(service_name, keyring = "")
-
-  pat <- keyring::key_get(service_name, keyring = "")
-  is_valid <- pat_is_valid(base_url, email, pat)
-
-  if (!is_valid)
-  {
-      tryCatch(
-          keyring::key_delete(service_name, keyring = ""),
-          error = function(e) NULL)
-    stop("The PAT was not valid! Please provide a valid PAT")
-  }
 }
 
 validate_base_url <- function(base_url)
@@ -160,9 +130,7 @@ pat_is_valid <- function(base_url, email, pat) {
         keyring::key_delete(service_name, keyring = ""),
         error = function(e) NULL)
 
-    message("The PAT does not appear to be valid. Error Message:",
-         call. = FALSE
-    )
+    message("The PAT does not appear to be valid. Error Message:\n")
     message(details)
     return(FALSE)
   }
@@ -185,7 +153,7 @@ get_pat <- function(base_url, email){
   service_name <- get_service_name(base_url, email)
   if (nrow(keyring::key_list(service = service_name)) == 0)
   {
-    stop("The base url has no personal access token associated. Please call save_personal_access_token first")
+    stop("The base url has no personal access token associated. Please call connect")
   }
 
   pat <- keyring::key_get(service_name)
@@ -196,7 +164,7 @@ get_pat <- function(base_url, email){
     tryCatch(
       keyring::key_delete(service_name),
       error = function(e) NULL)
-    stop("The PAT was not valid anymore. Please create a new PAT, call save_personal_access_token and try again.")
+    stop("The PAT is not valid. Please check the url, username and PAT.")
   }
 
   return(pat)

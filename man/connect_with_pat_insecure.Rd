@@ -19,12 +19,11 @@ a connection object
 }
 \description{
 If you use this method, please delete the FgConnection object when you are done.
-Use this method only if save_personal_access_token does not work, e.g. because your keyring does not work or you work in a Jupyter Notebook.
+Use this method only if connect does not work, e.g. because your keyring does not work or you work in a Jupyter Notebook.
 WARNINIG: NEVER store your PAT in your R history or in Source Control.
 Anybody who has the PAT can take any action on FASTGenomics you can make.
 More Questions? Read our \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md}{in depth authorization Guide}
 }
 \examples{
-fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")
-connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com")
+connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com", "pat")
 }
