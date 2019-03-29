@@ -22,7 +22,7 @@ install_github("FASTGenomics/r_client")
 
 ## Example
 
-First you need to authorize yourself. This packlage currently only supports login via Personal Access Tokens (PATs). See  our [Authorization Guide](https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization%20guide.md) for more details.
+First you need to authorize yourself. This packlage currently only supports login via Personal Access Tokens (PATs). See  our [Authorization Guide](https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md) for more details.
 
 1. Create a PAT for your account [here](https://prod.fastgenomics.org/ids/Manage/NewPatToken)
 1. Save the created PAT somewhere.
@@ -40,7 +40,7 @@ print(datasets@content) # all datasets available to you
 ## Run tests
 
 If you want the unit tests of this package, set these environment variables
-Note: You can obtain a PAT (Personal access token) using this [guide](https://github.com/FASTGenomics/fastgenomics-docs/blob/releases/next/doc/api/authorization%20guide.md)
+Note: You can obtain a PAT (Personal access token) using this [guide](https://github.com/FASTGenomics/fastgenomics-docs/blob/releases/next/doc/api/authorization_guide.md)
 In no circumstances, share your PAT with anyone or commit it to source control!
 
 ```r
