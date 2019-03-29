@@ -26,6 +26,16 @@ FGConnection <- R6Class(
     pat = "",
     email = "",
     get_bearer_token = function() {
+
+      if (private$only_bearer_token)
+      {
+        if (check_if_token_is_not_expired(private$bearer_token)) {
+          stop("Your bearer token is expiring soon. Please obtain a new one and create a new connection. Use PATs to avoid this problem.")
+        }
+
+        return(private$bearer_token)
+      }
+
       is_empty <- private$bearer_token == ""
       if (is_empty || check_if_token_is_not_expired(private$bearer_token))
       {
@@ -62,13 +72,15 @@ FGConnection <- R6Class(
        date <- date - Sys.time()
        return(date)
     },
-    initialize = function(base_url, pat, email) {
+    initialize = function(base_url, pat, email, bt = "") {
       stopifnot(is.character(base_url), length(base_url) == 1, base_url != "")
       stopifnot(is.character(email), length(email) == 1, email != "")
 
       self$base_url <- base_url
       self$pat <- pat
       self$email <- email
+      private$only_bearer_token <- bt != ""
+      private$bearer_token <- bt
     },
     print = function(...) {
       cat("FGConnection: \n")
@@ -76,11 +88,13 @@ FGConnection <- R6Class(
       cat("  Email: ", self$email, "\n", sep = "")
       cat("  Time until token refresh (h):  ", self$get_token_lifetime(), "\n", sep = "")
       cat("  Insecure: ",  self$pat != "", " (if true, do not store this object in the history)", "\n", sep = "")
+      cat("  Bearer Token only: ",  private$only_bearer_token != "", "\n", sep = "")
       invisible(self)
     }
   ),
   private = list(
-    bearer_token = ""
+    bearer_token = "",
+    only_bearer_token = FALSE
   )
 )
 
