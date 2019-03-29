@@ -17,7 +17,9 @@ Nothing
 \description{
 You will be asked for a PAT, please generate it at: <base_url>/ids/Manage/ManagePats
 The PAT is stored securely in a keyring, which can only be accessed by your user.
-WARNINIG: NEVER commit passwords, Tokens or PATs to a GIT repository or share them in any way! The token can be used to do any action on your behalf.
+WARNINIG: NEVER store your PAT in your R history or in Source Control.
+Anybody who has the PAT can take any action on FASTGenomics you can make.
+More Questions? Read our \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md}{in depth authorization Guide}
 }
 \examples{
 fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")

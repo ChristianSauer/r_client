@@ -3,7 +3,7 @@
 export(FGConnection)
 export(FGDatasetUploadParameters)
 export(connect)
-export(connect_with_pat)
+export(connect_with_pat_insecure)
 export(create_app)
 export(create_dataset)
 export(create_dataset_df)

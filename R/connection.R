@@ -4,15 +4,16 @@ library(keyring)
 
 #' Get a FastGenomics connection object to a specific FASTGenomics instance
 #'
-#' WARNINIG: NEVER commit passwords or Tokens to a GIT repository or share them in any way! The token can be used to do any action on your behalf.
-#' In the background, your PAT is used.
+#' Call \code{\link{save_personal_access_token}} first to store yor Personal Access Token PAT securely
+#' WARNINIG: NEVER store your PAT in your R history or in Source Control.
+#' Anybody who has the PAT can take any action on FASTGenomics you can make.
+#' More Questions? Read our \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md}{in depth authorization Guide}
 #'
 #' @param base_url The url of the instance, e.g. https://fastgenomics.org/
 #' @param email The email address of your account
 #'
 #' @return a connection object
 #' @export
-#'
 #' @examples
 #' fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")
 #' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com")
@@ -26,6 +27,13 @@ connect <- function(base_url, email) {
     stop("The email must be a non empty string")
   }
 
+  get_pat(base_url, email) # we call this once to check if we have a valid pat
+
+  result <- FGConnection$new(base_url = base_url, pat = "", email = email)
+  return(result)
+}
+
+get_pat <- function(base_url, email){
   service_name <- get_service_name(base_url, email)
   if (nrow(keyring::key_list(service = service_name)) == 0)
   {
@@ -37,22 +45,23 @@ connect <- function(base_url, email) {
   is_valid <- pat_is_valid(base_url, email, pat)
   if (!is_valid)
   {
-      tryCatch(
-          keyring::key_delete(service_name),
-          error = function(e) NULL)
+    tryCatch(
+      keyring::key_delete(service_name),
+      error = function(e) NULL)
     stop("The PAT was not valid anymore. Please create a new PAT, call save_personal_access_token and try again.")
   }
 
-  result <- FGConnection$new(base_url = base_url, pat = pat, email = email)
-  return(result)
+  return(pat)
 }
 
 #' Get a FastGenomics connection object to a specific FASTGenomics instance.
-#' This method is less secure than using connect.
-#' Use this method only if save_personal_access_token does not work, e.g. because your keyring does not work or you work in a Jupyter Notebook.
+#' This method is less secure than using connect since the PAT will end in your R History
 #'
-#' WARNINIG: NEVER commit passwords or Tokens to a GIT repository or share them in any way! The token can be used to do any action on your behalf.
-#' In the background, your PAT is used.
+#' If you use this method, please delete the FgConnection object when you are done.
+#' Use this method only if save_personal_access_token does not work, e.g. because your keyring does not work or you work in a Jupyter Notebook.
+#' WARNINIG: NEVER store your PAT in your R history or in Source Control.
+#' Anybody who has the PAT can take any action on FASTGenomics you can make.
+#' More Questions? Read our \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md}{in depth authorization Guide}
 #'
 #' @param base_url The url of the instance, e.g. https://fastgenomics.org/
 #' @param email The email address of your account
@@ -64,7 +73,7 @@ connect <- function(base_url, email) {
 #' @examples
 #' fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")
 #' connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com")
-connect_with_pat <- function(base_url, email, pat) {
+connect_with_pat_insecure <- function(base_url, email, pat) {
   if (!endsWith(base_url, "/")) {
     base_url = paste(base_url, "/", sep = "")
     message("base_url is missing '/' at the end, appending...")
@@ -82,12 +91,15 @@ connect_with_pat <- function(base_url, email, pat) {
   return(result)
 }
 
+# todo add bearer token
 
 #' Store a Personal Access Token (PAT) on your system
 #'
 #' You will be asked for a PAT, please generate it at: <base_url>/ids/Manage/ManagePats
 #' The PAT is stored securely in a keyring, which can only be accessed by your user.
-#' WARNINIG: NEVER commit passwords, Tokens or PATs to a GIT repository or share them in any way! The token can be used to do any action on your behalf.
+#' WARNINIG: NEVER store your PAT in your R history or in Source Control.
+#' Anybody who has the PAT can take any action on FASTGenomics you can make.
+#' More Questions? Read our \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md}{in depth authorization Guide}
 #'
 #' @param base_url The url of the instance, e.g. https://fastgenomics.org/
 #' @param email The email address of your account

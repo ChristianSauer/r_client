@@ -29,13 +29,21 @@ FGConnection <- R6Class(
       is_empty <- private$bearer_token == ""
       if (is_empty || check_if_token_is_not_expired(private$bearer_token))
       {
+        if (self$pat != "") {
+          pat <- self$pat # the pat was directly provided
+        }
+        else
+        {
+          pat <- get_pat(self$base_url, self$email) # get the pat from the keyring
+        }
+
         url <- paste(self$base_url, "ids/api/v1/token/pat", sep = "")
         response <-
           httr::POST(
             url,
             body = list(
               Email = self$email,
-              PersonalAccessToken = self$pat
+              PersonalAccessToken = pat
             ),
             encode = "json"
           )
@@ -56,7 +64,6 @@ FGConnection <- R6Class(
     },
     initialize = function(base_url, pat, email) {
       stopifnot(is.character(base_url), length(base_url) == 1, base_url != "")
-      stopifnot(is.character(pat), length(pat) == 1, pat != "")
       stopifnot(is.character(email), length(email) == 1, email != "")
 
       self$base_url <- base_url
@@ -68,10 +75,13 @@ FGConnection <- R6Class(
       cat("  Server: ", self$base_url, "\n", sep = "")
       cat("  Email: ", self$email, "\n", sep = "")
       cat("  Time until token refresh (h):  ", self$get_token_lifetime(), "\n", sep = "")
+      cat("  Insecure: ",  self$pat != "", " (if true, do not store this object in the history)", "\n", sep = "")
       invisible(self)
     }
   ),
-  private = list(bearer_token = "")
+  private = list(
+    bearer_token = ""
+  )
 )
 
 

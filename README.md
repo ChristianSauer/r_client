@@ -37,7 +37,6 @@ print(datasets@content) # all datasets available to you
 ```
 
 **Warning** Never store your PAT in a variable or somewhere where it can be compromised. Anybody with your PAT can modify your data as he sees fit. If your PAT is compromised, [revoke it](https://prod.fastgenomics.org/ids/Manage/ManagePats?)!
-The connection object should also not be shared, it contains your PAT.
 
 ## Run tests
 
@@ -75,7 +74,9 @@ Due to a known bug in R kernel for jupyter the R session is [not considered
 interactive](https://github.com/IRkernel/IRkernel/issues/236) (`interactive()` returns
 `FALSE`).  This causes the password prompts used by the keyring package (either
 `askpass` or `getPass` depending on the version of keyring) to return `NULL` resulting
-in subsequent cryptic errors from keyring. In this case, use the method connect_with_pat which does not store your PAT securely, but in memory. Be aware that you should not store the PAT in the Notebook and avoid sharing the FgConnection object.
+in subsequent cryptic errors from keyring. 
+
+In this case, use the method `connect_with_pat_insecure` which does not store your PAT securely, but in memory. Be aware that you should not store the PAT in the Notebook and avoid sharing the FgConnection object.
 
 ### Keyring backends
 
