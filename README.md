@@ -27,7 +27,7 @@ First you need to authorize yourself. This packlage currently only supports logi
 1. Create a PAT for your account [here](https://prod.fastgenomics.org/ids/Manage/NewPatToken)
 1. Save the created PAT somewhere.
 
-If you need more guidance, please read our [Authorization Guide](https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization%20guide.md).
+If you need more guidance, please read our [Authorization Guide](https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md).
 
 ``` r
 fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com") # this will show a display where you can enter your PAT
