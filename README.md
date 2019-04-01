@@ -6,6 +6,14 @@ Connect to any FASTGenomics instance and manipulate / retrieve data.
 
 You can install the development version like this:
 
+*Hint* devtools needs some system packages to work, see this page for [details](https://www.r-project.org/nosvn/pandoc/devtools.html). The exact steps vary for each Linux distribution so your best bet is to search for "devtools r install your linix distribution".
+
+*Hint* We need libsodium, this can be installed like this on Ubuntu:
+
+``` bash
+sudo apt-get install libsodium-dev
+```
+
 ``` r
 install.packages("devtools")
 library(devtools)
@@ -14,22 +22,25 @@ install_github("FASTGenomics/r_client")
 
 ## Example
 
-You need to get a bearer token to use this api.  You can get this
-token at: https://prod.fastgenomics.org/webclient/Home/BearerToken/
+First you need to authorize yourself. This packlage currently only supports login via Personal Access Tokens (PATs). See  our [Authorization Guide](https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md) for more details.
 
-*WARNING*: Never commit this token to a repository or share it
-otherwise! It can be used to impersonate you
+1. Create a PAT for your account [here](https://prod.fastgenomics.org/ids/Manage/NewPatToken)
+1. Save the created PAT somewhere.
+
+If you need more guidance, please read our [Authorization Guide](https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md).
 
 ``` r
-connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "Bearer Token")
+connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com") # this will show a display where you can enter your PAT
 datasets <- fastgenomicsRclient::get_datasets(connection)
 print(datasets@content) # all datasets available to you
 ```
 
+**Warning** Never store your PAT in a variable or somewhere where it can be compromised. Anybody with your PAT can modify your data as he sees fit. If your PAT is compromised, [revoke it](https://prod.fastgenomics.org/ids/Manage/ManagePats?)!
+
 ## Run tests
 
 If you want the unit tests of this package, set these environment variables
-Note: You can obtain a PAT (Personal access token) using this [guide](https://github.com/FASTGenomics/fastgenomics-docs/blob/releases/next/doc/api/authorization%20guide.md)
+Note: You can obtain a PAT (Personal access token) using this [guide](https://github.com/FASTGenomics/fastgenomics-docs/blob/releases/next/doc/api/authorization_guide.md)
 In no circumstances, share your PAT with anyone or commit it to source control!
 
 ```r
@@ -56,12 +67,24 @@ If you get 403 FORBIDDEN errors when using the API, your user account
 has not the necessary permissions for an operation.  Please contact us
 at feedback@fastgenomics.org to get access to such functions.
 
-### Compression of submitted data
+### Jupyter notebook compatibility
 
-We internally use the
-[`zip`](https://www.rdocumentation.org/packages/utils/versions/3.5.1/topics/zip)
-function, which by default uses a system-dependent compression program
-(`"zip"` by default).  Make sure to have zip installed if you wan to
-submit compressed data.  On Windows one solution is to get it with
-[the Rtools package](https://cran.rstudio.com/bin/windows/Rtools/),
-just make sure to check the update PATH checkbox when installing it.
+Due to a known bug in R kernel for jupyter the R session is [not considered
+interactive](https://github.com/IRkernel/IRkernel/issues/236) (`interactive()` returns
+`FALSE`).  This causes the password prompts used by the keyring package (either
+`askpass` or `getPass` depending on the version of keyring) to return `NULL` resulting
+in subsequent cryptic errors from keyring. 
+
+In this case, use the method `connect_with_pat_insecure` which does not store your PAT securely, but in memory. Be aware that you should not store the PAT in the Notebook and avoid sharing the FgConnection object.
+
+### Keyring backends
+
+If for some reason the default backend of the keyring package does not work for you, you
+can switch to a different backend by specifying
+
+``` r
+options(keyring_backend = "env")
+```
+
+You can find the list of available backends
+[here](https://github.com/r-lib/keyring#configuring-an-os-specific-backend).

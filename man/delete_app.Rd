@@ -2,15 +2,15 @@
 % Please edit documentation in R/apps.R
 \name{delete_app}
 \alias{delete_app}
-\title{Delete an application}
+\title{Delete an app. This will fail if the app is used in any workflow or analysis.}
 \usage{
 delete_app(connection, app_id)
 }
 \arguments{
 \item{connection}{The connection to be used, call \code{\link{connect}} to obtain one.}
 
-\item{app_id}{Id of the app to be deleted.  To get app ids call \code{\link{get_apps}}.}
+\item{app_id}{Id of the app to be deleted. To get app ids call \code{\link{get_apps}}.}
 }
 \description{
-Delete an application
+Delete an app. This will fail if the app is used in any workflow or analysis.
 }

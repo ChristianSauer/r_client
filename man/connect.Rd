@@ -15,10 +15,12 @@ connect(base_url, email)
 a connection object
 }
 \description{
-WARNINIG: NEVER commit passwords or Tokens to a GIT repository or share them in any way! The token can be used to do any action on your behalf.
-In the background, your PAT is used.
+If you did not provide a Personal Access Token (PAT) for this URL / user combination, you will be prompted to enter your PAT.
+The PAT itself is stored in your systems keyring and not in your R History.
+WARNINIG: NEVER store your PAT in your R history or in Source Control.
+Anybody who has the PAT can take any action on FASTGenomics you can make.
+More Questions? Read our \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/authorization_guide.md}{in depth authorization Guide}
 }
 \examples{
-fastgenomicsRclient::save_personal_access_token("https://fastgenomics.org/", "user@example.com")
 connection <- fastgenomicsRclient::connect("https://fastgenomics.org/", "user@example.com")
 }

@@ -8,7 +8,8 @@ library(R6)
 
 #' A FGConnection
 #'
-#'  Make sure that you never share an environment which contains such an object.
+#' If Insecure = TRUE this object contains your PAT. Such objects should never committed to your R History or Source Control.
+#  Otherwise, the object should be relativly save, but avoid sharing if possible.
 #'
 #' @slot base_url the URL.
 #' @slot pat the personal access token.
@@ -26,16 +27,33 @@ FGConnection <- R6Class(
     pat = "",
     email = "",
     get_bearer_token = function() {
+      if (private$only_bearer_token)
+      {
+        if (check_if_token_is_not_expired(private$bearer_token)) {
+          stop("Your bearer token is expiring soon. Please obtain a new one and create a new connection. Use PATs to avoid this problem.")
+        }
+
+        return(private$bearer_token)
+      }
+
       is_empty <- private$bearer_token == ""
       if (is_empty || check_if_token_is_not_expired(private$bearer_token))
       {
+        if (self$pat != "") {
+          pat <- self$pat # the pat was directly provided
+        }
+        else
+        {
+          pat <- get_pat(self$base_url, self$email) # get the pat from the keyring
+        }
+
         url <- paste(self$base_url, "ids/api/v1/token/pat", sep = "")
         response <-
           httr::POST(
             url,
             body = list(
               Email = self$email,
-              PersonalAccessToken = self$pat
+              PersonalAccessToken = pat
             ),
             encode = "json"
           )
@@ -54,24 +72,30 @@ FGConnection <- R6Class(
        date <- date - Sys.time()
        return(date)
     },
-    initialize = function(base_url, pat, email) {
+    initialize = function(base_url, pat, email, bt = "") {
       stopifnot(is.character(base_url), length(base_url) == 1, base_url != "")
-      stopifnot(is.character(pat), length(pat) == 1, pat != "")
       stopifnot(is.character(email), length(email) == 1, email != "")
 
       self$base_url <- base_url
       self$pat <- pat
       self$email <- email
+      private$only_bearer_token <- bt != ""
+      private$bearer_token <- bt
     },
     print = function(...) {
       cat("FGConnection: \n")
       cat("  Server: ", self$base_url, "\n", sep = "")
       cat("  Email: ", self$email, "\n", sep = "")
       cat("  Time until token refresh (h):  ", self$get_token_lifetime(), "\n", sep = "")
+      cat("  Insecure: ",  self$pat != "", " (if true, do not store this object in the history)", "\n", sep = "")
+      cat("  Bearer Token only: ",  private$only_bearer_token, "\n", sep = "")
       invisible(self)
     }
   ),
-  private = list(bearer_token = "")
+  private = list(
+    bearer_token = "",
+    only_bearer_token = FALSE
+  )
 )
 
 
