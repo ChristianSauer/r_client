@@ -122,18 +122,7 @@ create_workflow <- function(connection, path_to_workflow){
   }
   headers <- headers <- c(headers, httr::content_type_json())
   response <- httr::POST(url, headers, body = body)
-  if (response["status_code"] == 422) {
-    parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-    error <- new("FGErrorResponse", path = url, content = parsed, validation_errors = parsed[["errors"]])
-    return(error)
-  }
-
-  httr::stop_for_status(response) # abort on all other errors
-
-  parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-  workflow_id <- parsed[["id"]]
-  result <- new("FGResponse", path = url, content = parsed, DataType="workflow", Id = workflow_id, response = response )
-  return(result)
+  return(parse_response(response, "workflow"))
 }
 
 #' Modifies an existing workflow
