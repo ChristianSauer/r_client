@@ -21,7 +21,7 @@ scopes = list("All", "Public", "Private")
 #' datasets <- fastgenomicsRclient::get_datasets(connection)
 #' print(datasets@content) # all datasets available to you
 get_datasets <- function(connection, scope="All"){
-  url <-  paste(connection$base_url, "dataset/api/v1/datasets", sep = "")
+  url <-  paste(connection$base_url, "dataset/api/v4/datasets", sep = "")
   result <- get_data_list(connection, scope, url, "dataset", queries = list(includeHateoas = "true" ))
 
   return(result)
@@ -43,7 +43,7 @@ get_datasets <- function(connection, scope="All"){
 #' datasets <- fastgenomicsRclient::get_dataset(connection, "dts_abc")
 #' print(datasets@content) # the dataset
 get_dataset <- function(connection, dataset_id){
-  url <- paste(connection$base_url, "dataset/api/v1/datasets/", dataset_id, sep = "")
+  url <- paste(connection$base_url, "dataset/api/v4/datasets/", dataset_id, sep = "")
   result <- get_data(connection, dataset_id, url, "dataset")
   return(result)
 }
@@ -107,7 +107,6 @@ download_dataset <- function(connection, dataset_id, folder_path){
 #'     \code{\link{connect}} to obtain one.
 #' @param title The Title of the dataset
 #' @param description A description of the dataset, ca be Markdown
-#' @param short_description A oneliner describing your dataset
 #' @param organism_id The NCBI Taxonomy ID of your dataset, passed as
 #'     an integer. Currently supported IDs are 9606 (Homo Sapiens) and
 #'     10090 (Mouse)
@@ -137,14 +136,12 @@ download_dataset <- function(connection, dataset_id, folder_path){
 #'                                         web_link="https://example.com",
 #'                                         notes="This is a TEST",
 #'                                         citation="FG et al",
-#'                                         batch_column="sample",
 #'                                         current_normalization_status="Counts",
 #'                                         cell_metadata="./cell_metadata.tsv", # you can also use a dataframe directly
 #'                                         gene_metadata="./gene_metadata.tsv"  ) # you can also use a dataframe directly
 #'  result <- fastgenomicsRclient::create_dataset(connection,
 #'                            "R client test",
 #'                            "description",
-#'                            "short_description",
 #'                            9606,
 #'                            "./matrix.tsv" , # you can also use a dataframe directly
 #'                            "sparse_cell_gene_expression",
@@ -153,7 +150,7 @@ download_dataset <- function(connection, dataset_id, folder_path){
 #'
 #'  status <- fastgenomicsRclient::poll_dataset_until_validated(connection, result, 1 ) # validation messages are shown as messages
 #'  print(status) # should be TRUE
-create_dataset <- function(connection, title, description, short_description, organism_id, matrix , matrix_format, gene_nomenclature, optional_parameters=NULL)
+create_dataset <- function(connection, title, description, organism_id, matrix , matrix_format, gene_nomenclature, optional_parameters=NULL)
 {
   assert_is_connection(connection)
 
@@ -166,7 +163,7 @@ create_dataset <- function(connection, title, description, short_description, or
 
   if (!is.numeric(organism_id))
   {
-    stop(stringr::str_interp("The organism id '${organism_id}' is not an integer. Valid NCBI Ids are integers, e.g. Homo Sapiens: 9606 Mouse: 10090"))
+    stop(stringr::str_interp("The organism id '${organism_id}' is not an integer. Valid NCBI Ids are integers, e.g. Homo Sapiens: 9606 Mouse: 10090, 0: unknown organism"))
   }
 
   matrix_formats <- get_valid_matrix_formats(connection)
@@ -207,13 +204,12 @@ create_dataset <- function(connection, title, description, short_description, or
 
   headers <- get_default_headers(connection)
   headers <- c(headers, httr::progress("up")) # adds a nice progress bar
-  url <-  paste(connection$base_url, "dataset/api/v1/datasets", sep = "")
+  url <-  paste(connection$base_url, "dataset/api/v4/datasets", sep = "")
 
   body = list(
     matrix  = httr::upload_file(matrix_path),
                           title = title,
                           description = description,
-                          short_description = short_description,
                           organism_id = organism_id,
                           matrix_format = matrix_format,
                           gene_nomenclature = gene_nomenclature)
@@ -254,7 +250,7 @@ poll_dataset_until_validated <- function(connection, dataset_id, poll_intervall=
   }
 
   headers <- get_default_headers(connection)
-  url <-  paste(connection$base_url, "dataset/api/v1/datasets/", dataset_id, "/status", sep = "")
+  url <-  paste(connection$base_url, "dataset/api/v4/datasets/", dataset_id, "/status", sep = "")
   last_check <- lubridate::ymd("2010/03/17") # something old
   while (TRUE) {
     Sys.sleep(poll_intervall)
@@ -310,7 +306,10 @@ poll_dataset_until_validated <- function(connection, dataset_id, poll_intervall=
 #' @examples
 #' None
 get_valid_gene_nomenclatures = function(connection){
-  return(get_info(connection, "dataset/api/v1/validgenenomenclatures"))
+  result <- get_known_defaults(connection)
+  result <- result[["known_gene_nomenclatures"]]
+  data = lapply(result, function(x){ return(x[["key"]])})
+  return(data)
 }
 
 #' Get a list of all supported matrix formats
@@ -323,7 +322,10 @@ get_valid_gene_nomenclatures = function(connection){
 #' @examples
 #' None
 get_valid_matrix_formats = function(connection){
-  return(get_info(connection, "dataset/api/v1/validmatrixformats"))
+  result <- get_known_defaults(connection)
+  result <- result[["known_csv_matrix_formats"]]
+  data = lapply(result, function(x){ return(x[["key"]])})
+  return(data)
 }
 
 #' Get a list of all supported technologies
@@ -336,32 +338,30 @@ get_valid_matrix_formats = function(connection){
 #' @examples
 #' None
 get_valid_technologies = function(connection){
-  return(get_info(connection, "dataset/api/v1/validtechnologies"))
+  result <- get_known_defaults(connection)
+  result <- result[["known_technologies"]]
+  data = lapply(result, function(x){ return(x[["key"]])})
+  return(data)
 }
 
-#' Get a list of all supported normalization schemes
+#' Get a list of all known defaults
 #'
 #' @param connection The connection to be used, call \code{\link{connect}} to obtain one.
 #'
-#' @return a list of supported normalization schemes
+#' @return a list of the known defaults
 #' @export
 #'
 #' @examples
 #' None
-get_valid_current_normalization_status = function(connection){
-  return(get_info(connection, "dataset/api/v1/validcurrentnormalizationstatus"))
-}
-
-get_info <- function(connection, url){
+get_known_defaults <- function(connection){
   assert_is_connection(connection)
 
   headers <- get_default_headers(connection)
-  url <- paste(connection$base_url, url, sep = "")
+  url <- paste(connection$base_url, "dataset/api/v4/knowndefaults", sep = "")
   response <- httr::GET(url, headers)
   httr::stop_for_status(response)
   parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-  data = lapply(parsed, function(x){ return(x[["key"]])})
-  return(data)
+  return(parsed)
 }
 
 get_df_as_file <- function(df, file_name){

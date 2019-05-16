@@ -58,34 +58,28 @@ test_that("can get valid technologies", {
   expect_true("Drop-Seq" %in% data)
 })
 
-test_that("can get valid current normalization status", {
-  data <- get_valid_current_normalization_status(default_conn)
-  expect_true("Counts" %in% data)
-})
-
-
 test_that("create: gene nomenclature must be valid", {
-  expect_error(create_dataset(default_conn, "title", "description", "short_description", 9606, "matrix_path" , "matrix_format", "gene_nomenclature" ), "The Gene Nomenclature 'gene_nomenclature is unknown. Choose one of: Entrez, GeneSymbol, Ensembl'")
+  expect_error(create_dataset(default_conn, "title", "description", 9606, "matrix_path" , "matrix_format", "gene_nomenclature" ), "The Gene Nomenclature 'gene_nomenclature is unknown. Choose one of: Entrez, GeneSymbol, Ensembl'")
 
 })
 
 
 test_that("create: organism_id must be valid", {
-  expect_error(create_dataset(default_conn, "title", "description", "short_description", "dsgsdfg", "matrix_path" , "matrix_format", "Entrez" ), "The organism id 'dsgsdfg' is not an integer. Valid NCBI Ids are integers, e.g. Homo Sapiens: 9606 Mouse: 10090")
+  expect_error(create_dataset(default_conn, "title", "description", "dsgsdfg", "matrix_path" , "matrix_format", "Entrez" ), "The organism id 'dsgsdfg' is not an integer. Valid NCBI Ids are integers, e.g. Homo Sapiens: 9606 Mouse: 10090")
 })
 
 test_that("create: matrix format must be valid", {
-  expect_error(create_dataset(default_conn, "title", "description", "short_description", 9606, "matrix_path" , "matrix_format", "Entrez" ), "The Matrix format 'matrix_format' is unknown. Choose one of: sparse_cell_gene_expression, sparse_gene_cell_expression, dense_cells_in_rows, dense_cells_in_columns'")
+  expect_error(create_dataset(default_conn, "title", "description", 9606, "matrix_path" , "matrix_format", "Entrez" ), "The Matrix format 'matrix_format' is unknown. Choose one of: sparse_cell_gene_expression, sparse_gene_cell_expression, dense_cells_in_rows, dense_cells_in_columns'")
 
 })
 
 test_that("create: matrix path must be valid", {
-  expect_error(create_dataset(default_conn, "title", "description", "short_description", 9606, "matrix_path" , "sparse_cell_gene_expression", "Entrez" ), "The file 'matrix_path' does not exist. Please provide a valid file!. See https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md for valid file formats")
+  expect_error(create_dataset(default_conn, "title", "description", 9606, "matrix_path" , "sparse_cell_gene_expression", "Entrez" ), "The file 'matrix_path' does not exist. Please provide a valid file!. See https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md for valid file formats")
 
 })
 
 test_that("create: works", {
-  result <- create_dataset(default_conn, "R client test", "description", "short_description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez" )
+  result <- create_dataset(default_conn, "R client test", "description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez" )
   expect_is(result, "FGResponse")
 })
 
@@ -94,19 +88,14 @@ test_that("FGDatasetUploadParameters: can create", {
   expect_is(data, "FGDatasetUploadParameters")
 })
 
-test_that("FGDatasetUploadParameters: batch_column cannot be set if no cell metadata", {
-    params = FGDatasetUploadParameters("FGDatasetUploadParameters", batch_column = "something" )
-    expect_error(get_data_from_FGDatasetUploadParameters(params, default_conn), "If batch_column is set, you need to provide a file containing cell_metatadata, too!")
-})
-
 test_that("create: optional parameters must be FGDatasetUploadParameters", {
   optional <- "BLA"
-  expect_error(create_dataset(default_conn, "R client test", "description", "short_description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez",  optional) , "the optional_parameters need to be either NULL or a FGDatasetUploadParameters object")
+  expect_error(create_dataset(default_conn, "R client test", "description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez",  optional) , "the optional_parameters need to be either NULL or a FGDatasetUploadParameters object")
 })
 
 test_that("FGDatasetUploadParameters: validates technology", {
   optional <- FGDatasetUploadParameters(technology = "invalid_tech")
-  expect_error(create_dataset(default_conn, "R client test", "description", "short_description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez",  optional) , "The Technology 'invalid_tech is unknown. Choose one of")
+  expect_error(create_dataset(default_conn, "R client test", "description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez",  optional) , "The Technology 'invalid_tech is unknown. Choose one of")
 
 })
 
@@ -115,16 +104,13 @@ test_that("create: works with optional parameters", {
                                         license = "MIT",
                                         technology = "Smart-Seq",
                                         web_link = "https://example.com",
-                                        notes = "This is a TEST",
                                         citation = "FG et al",
-                                        batch_column = "sample",
                                         current_normalization_status = "Counts",
                                         cell_metadata = "./cell_metadata.tsv",
                                         gene_metadata = "./gene_metadata.tsv"  )
   result <- create_dataset(default_conn,
                            "R client test",
                            "description",
-                           "short_description",
                            9606,
                            "./matrix.tsv" ,
                            "sparse_cell_gene_expression",
@@ -140,7 +126,6 @@ test_that("create: shows usefull errors", {
   result <- create_dataset(default_conn,
                            "R client test",
                            "description",
-                           "short_description",
                            9606,
                            "./matrix.tsv" ,
                            "sparse_cell_gene_expression",
@@ -153,7 +138,6 @@ test_that("poll: works", {
   result <- create_dataset(default_conn,
                            "R client test",
                            "description",
-                           "short_description",
                            9606,
                            "./matrix.tsv" ,
                            "sparse_cell_gene_expression",
@@ -166,7 +150,6 @@ test_that("poll: can cope with failure", {
   result <- create_dataset(default_conn,
                            "R client test",
                            "description",
-                           "short_description",
                            9606,
                            "./matrixWithError.tsv" ,
                            "sparse_cell_gene_expression",

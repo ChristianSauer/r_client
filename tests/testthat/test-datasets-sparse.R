@@ -38,7 +38,6 @@ gen_args <- function(replacements = list()) {
     gene_metadata = input$genes,
     title = "R client test",
     description = "description",
-    short_description = "short_description",
     organism_id = 9606,
     gene_nomenclature = "GeneSymbol",
     tmpdir = tmpdir,

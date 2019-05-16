@@ -61,12 +61,10 @@ create_tmp_files = function(matrix, cell_metadata, gene_metadata, tmpdir=NULL){
 #'     geneId column.
 #' @param organism_id One of 9606 (Mouse) and 10090 (Human)
 #' @param title The title of the data set
-#' @param short_description short description, Default: ""
 #' @param description long description, Default: ""
 #' @param zipfiles Weather to compress files before submitting,
 #'     Default: TRUE
 #' @param tmpdir The location of temporary files, Default: NULL
-#' @param batch_column The column in the gene_metadata which is used to hold batch information. Can be "" for no batch information
 #' @param optional_parameters Object representing further optional
 #'     parameters, see \code{\link{FGDatasetUploadParameters}},
 #'     Default: NULL
@@ -81,16 +79,17 @@ create_tmp_files = function(matrix, cell_metadata, gene_metadata, tmpdir=NULL){
 create_dataset_df <- function(connection, matrix, cell_metadata,
                               gene_metadata, gene_nomenclature,
                               organism_id, title, zipfiles=TRUE,
-                              description="", short_description="",
-                              batch_column="",
+                              description="",
                               optional_parameters=FGDatasetUploadParameters() , tmpdir=NULL)
 {
     assert_is_connection(connection)
 
     match.arg(gene_nomenclature, c("Entrez", "GeneSymbol", "Ensembl"))
 
-    if (!(organism_id %in% c(9606, 10090)))
-        stop(stringr::str_interp("The organism id '${organism_id}' is not an integer. Valid NCBI Ids are integers, e.g. Homo Sapiens: 9606 Mouse: 10090"))
+    if (!is.numeric(organism_id))
+    {
+      stop(stringr::str_interp("The organism id '${organism_id}' is not an integer. Valid NCBI Ids are integers, e.g. Homo Sapiens: 9606 Mouse: 10090, 0: unknown organism"))
+    }
 
     ## check if the matrix is sparse
     if ( !is(matrix, "sparseMatrix") ) {
@@ -114,28 +113,25 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
     if ( length(intersect(get_gene_ids(matrix), gene_metadata$geneId)) == 0 ) {
         stop("No common gene names found in matrix and gene_metadata.")
     }
-    if ( nchar(title) < 5 | nchar(title) > 50 ) {
-        stop("Title has to be a string with length between 5 and 50.")
+    if ( nchar(title) < 5 ) {
+        stop("Title has to be a string with at least 5 characters.")
     }
 
     # adds a nice progress bar
     headers <- c(get_default_headers(connection), httr::progress("up"))
-    url <- paste(connection$base_url, "dataset/api/v1/datasets", sep="")
+    url <- paste(connection$base_url, "dataset/api/v4/datasets", sep = "")
 
-    files = create_tmp_files(matrix, cell_metadata, gene_metadata, tmpdir=tmpdir)
-    if(zipfiles)
+    files = create_tmp_files(matrix, cell_metadata, gene_metadata, tmpdir = tmpdir)
+    if (zipfiles)
         files = lapply(files, zip_file)
 
     body = list(
         matrix = httr::upload_file(files[["matrix_csv"]]),
         title = title,
         description = description,
-        short_description = short_description,
         organism_id = organism_id,
         matrix_format = "sparse_cell_gene_expression",
         gene_nomenclature = gene_nomenclature)
-
-    optional_data <- list()
 
     tryCatch({
         if (!is.null(optional_parameters))
@@ -143,15 +139,14 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
                 stop("the optional_parameters need to be either NULL or a FGDatasetUploadParameters object. Call new('FGDatasetUploadParameters', ..) to obtain such an object.")
             else
             {
-                if(optional_parameters@gene_metadata != "")
+                if (optional_parameters@gene_metadata != "")
                     message("Warning, replacing gene_metadata with a table inferred from the Seurat object")
 
-                if(optional_parameters@cell_metadata != "")
+                if (optional_parameters@cell_metadata != "")
                     message("Warning, replacing cell_metadata with a table inferred from the Seurat object")
 
                 optional_parameters@gene_metadata = files[["gene_metadata"]]
                 optional_parameters@cell_metadata = files[["cell_metadata"]]
-                optional_parameters@batch_column = batch_column
 
                 body <- c(get_data_from_FGDatasetUploadParameters(
                     optional_parameters, connection), body)
