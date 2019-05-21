@@ -138,6 +138,6 @@ test_that("create-sparse: title too short", {
   args <- gen_args(list(title = "a"))
   expect_error(
     do.call(create_dataset_df, args),
-    "TTitle has to be a string with length between 5 and 200."
+    "Title has to be a string with length between 5 and 200."
   )
 })
