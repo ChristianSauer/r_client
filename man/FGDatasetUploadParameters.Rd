@@ -4,25 +4,20 @@
 \alias{FGDatasetUploadParameters}
 \title{Get the optional parameters to create a dataset}
 \usage{
-FGDatasetUploadParameters(license = "", web_link = "", notes = "",
-  citation = "", technology = "", batch_column = "",
-  current_normalization_status = "", cell_metadata = "",
-  gene_metadata = "")
+FGDatasetUploadParameters(license = "", web_link = "", citation = "",
+  technology = "", current_normalization_status = "",
+  cell_metadata = "", gene_metadata = "")
 }
 \arguments{
 \item{license}{The license to be used. If the data are owned by yourself, you can use https://creativecommons.org/choose/ to choose a license. If not, you have to find the license used by the dataset, e.g. talk to your supervisor.}
 
 \item{web_link}{The website of your dataset.}
 
-\item{notes}{Privates notes}
-
 \item{citation}{How to cite this dataset}
 
-\item{technology}{The technology used to obtain this dataset. call \code{\link{get_valid_technologies}} to get a list}
+\item{technology}{The technology used to obtain this dataset. call \code{\link{get_valid_technologies}} to get a list of already known technologies or freely choose a name.}
 
-\item{batch_column}{The colum in the cell metadata which holds information about the batch. Can be blank. If not blank, cell_metadata have to be included.}
-
-\item{current_normalization_status}{The current_normalization_status used to obtain this dataset. call \code{\link{get_valid_current_normalization_status}} to get a list}
+\item{current_normalization_status}{The current_normalization_status used to obtain this dataset. call \code{\link{get_valid_current_normalization_status}} to get a list of already known normalization techniques or freely choose a name.}
 
 \item{cell_metadata}{The path to your cell metadata file OR a dataframe, for valid formats see \href{https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md}{here}.}
 

@@ -207,7 +207,7 @@ create_dataset <- function(connection, title, description, organism_id, matrix ,
   url <-  paste(connection$base_url, "dataset/api/v4/datasets", sep = "")
 
   body = list(
-    matrix  = httr::upload_file(matrix_path),
+    expression_data = httr::upload_file(matrix_path),
                           title = title,
                           description = description,
                           organism_id = organism_id,
@@ -250,7 +250,7 @@ poll_dataset_until_validated <- function(connection, dataset_id, poll_intervall=
   }
 
   headers <- get_default_headers(connection)
-  url <-  paste(connection$base_url, "dataset/api/v4/datasets/", dataset_id, "/status", sep = "")
+  url <-  paste(connection$base_url, "dataset/api/v4/datasets/", dataset_id, "/validationmessages", sep = "")
   last_check <- lubridate::ymd("2010/03/17") # something old
   while (TRUE) {
     Sys.sleep(poll_intervall)

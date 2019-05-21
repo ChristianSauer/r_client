@@ -125,7 +125,7 @@ parse_response <- function(response, datatype){
                                      simplifyVector = FALSE)
         url = response$url
 
-        if(all(c("errors", "type", "title", "status", "detail", "instance")
+        if (all(c("errors", "type", "title", "status", "detail", "instance")
                %in% names(content))) {
             errors = content[["errors"]]
             detail = content[["detail"]]
@@ -133,26 +133,26 @@ parse_response <- function(response, datatype){
                     call. = FALSE)
             fgresponse <- new(
                 "FGValidationProblemResponse",
-                path=url,
-                content=content,
-                errors=errors,
-                title=content[["title"]],
-                type=content[["type"]],
-                status=content[["status"]],
-                detail=detail,
-                instance=content[["instance"]])
+                path = url,
+                content = content,
+                errors = errors,
+                title = content[["title"]],
+                type = content[["type"]],
+                status = content[["status"]],
+                detail = detail,
+                instance = content[["instance"]])
         }
-        else if("validation_errors" %in% names(content)){
+        else if ("validation_errors" %in% names(content)) {
             validation_errors <- content[["validation_errors"]]
             warning(stringr::str_interp("Upload of dataset failed due to these errors: ${validation_errors}"),
                     call. = FALSE)
             fgresponse <- new(
                 "FGErrorModelResponse",
-                content=content,
-                path=url,
-                validation_errors=validation_errors)
+                content = content,
+                path = url,
+                validation_errors = validation_errors)
         }
-        else if(all(c("error_code", "message", "help") %in% names(content))) {
+        else if (all(c("error_code", "message", "help") %in% names(content))) {
             message = content[["message"]]
             error_code = content[["error_code"]]
             help = content[["help"]]
@@ -160,8 +160,8 @@ parse_response <- function(response, datatype){
                     call. = FALSE)
             fgresponse <- new(
                 "FGErrorResponse",
-                path=url,
-                content=content,
+                path = url,
+                content = content,
                 error_code = error_code,
                 message = message,
                 help = help)
@@ -172,18 +172,18 @@ parse_response <- function(response, datatype){
     else {
         httr::stop_for_status(response) # abort on all other errors
         parsed <- jsonlite::fromJSON(httr::content(response, "text"), simplifyVector = FALSE)
-        if(!is.null(parsed[["id"]])){
+        if (!is.null(parsed[["id"]])){
             id = parsed[["id"]]
-        } else if(!is.null(parsed[["dataset_id"]])){
+        } else if (!is.null(parsed[["dataset_id"]])){
             id = parsed[["dataset_id"]]
-        } else if(!is.null(parsed[["image_name"]])){
+        } else if (!is.null(parsed[["image_name"]])){
             id = parsed[["image_name"]]
         } else {
             stop("Error parsing the response, could not find a valid 'id' field.")
         }
-        fgresponse <- new("FGResponse", content=parsed,
-                          path=response$url, response=response,
-                          DataType=datatype, Id=id)
+        fgresponse <- new("FGResponse", content = parsed,
+                          path = response$url, response = response,
+                          DataType = datatype, Id = id)
     }
     return(fgresponse)
 }

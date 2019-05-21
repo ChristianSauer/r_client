@@ -4,9 +4,8 @@
 \alias{create_dataset}
 \title{Creates a new dataset on fastgenomics}
 \usage{
-create_dataset(connection, title, description, short_description,
-  organism_id, matrix, matrix_format, gene_nomenclature,
-  optional_parameters = NULL)
+create_dataset(connection, title, description, organism_id, matrix,
+  matrix_format, gene_nomenclature, optional_parameters = NULL)
 }
 \arguments{
 \item{connection}{The connection to be used, call
@@ -15,8 +14,6 @@ create_dataset(connection, title, description, short_description,
 \item{title}{The Title of the dataset}
 
 \item{description}{A description of the dataset, ca be Markdown}
-
-\item{short_description}{A oneliner describing your dataset}
 
 \item{organism_id}{The NCBI Taxonomy ID of your dataset, passed as
 an integer. Currently supported IDs are 9606 (Homo Sapiens) and
@@ -60,14 +57,12 @@ optional <- fastgenomicsRclient::FGDatasetUploadParameters(
                                         web_link="https://example.com",
                                         notes="This is a TEST",
                                         citation="FG et al",
-                                        batch_column="sample",
                                         current_normalization_status="Counts",
                                         cell_metadata="./cell_metadata.tsv", # you can also use a dataframe directly
                                         gene_metadata="./gene_metadata.tsv"  ) # you can also use a dataframe directly
  result <- fastgenomicsRclient::create_dataset(connection,
                            "R client test",
                            "description",
-                           "short_description",
                            9606,
                            "./matrix.tsv" , # you can also use a dataframe directly
                            "sparse_cell_gene_expression",

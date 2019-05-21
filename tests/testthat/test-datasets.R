@@ -74,12 +74,12 @@ test_that("create: matrix format must be valid", {
 })
 
 test_that("create: matrix path must be valid", {
-  expect_error(create_dataset(default_conn, "title", "description", 9606, "matrix_path" , "sparse_cell_gene_expression", "Entrez" ), "The file 'matrix_path' does not exist. Please provide a valid file!. See https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md for valid file formats")
+  expect_error(create_dataset(default_conn, "@R client test", "description", 9606, "matrix_path" , "sparse_cell_gene_expression", "Entrez" ), "The file 'matrix_path' does not exist. Please provide a valid file!. See https://github.com/FASTGenomics/fastgenomics-docs/blob/master/doc/api/dataset_api.md for valid file formats")
 
 })
 
 test_that("create: works", {
-  result <- create_dataset(default_conn, "R client test", "description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez" )
+  result <- create_dataset(default_conn, "@R client test", "description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez" )
   expect_is(result, "FGResponse")
 })
 
@@ -90,12 +90,12 @@ test_that("FGDatasetUploadParameters: can create", {
 
 test_that("create: optional parameters must be FGDatasetUploadParameters", {
   optional <- "BLA"
-  expect_error(create_dataset(default_conn, "R client test", "description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez",  optional) , "the optional_parameters need to be either NULL or a FGDatasetUploadParameters object")
+  expect_error(create_dataset(default_conn, "@R client test", "description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez",  optional) , "the optional_parameters need to be either NULL or a FGDatasetUploadParameters object")
 })
 
 test_that("FGDatasetUploadParameters: validates technology", {
   optional <- FGDatasetUploadParameters(technology = "invalid_tech")
-  expect_error(create_dataset(default_conn, "R client test", "description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez",  optional) , "The Technology 'invalid_tech is unknown. Choose one of")
+  expect_error(create_dataset(default_conn, "@R client test", "description", 9606, "./matrix.tsv" , "sparse_cell_gene_expression", "Entrez",  optional) , "The Technology 'invalid_tech is unknown. Choose one of")
 
 })
 
@@ -109,7 +109,7 @@ test_that("create: works with optional parameters", {
                                         cell_metadata = "./cell_metadata.tsv",
                                         gene_metadata = "./gene_metadata.tsv"  )
   result <- create_dataset(default_conn,
-                           "R client test",
+                           "@R client test",
                            "description",
                            9606,
                            "./matrix.tsv" ,
@@ -121,22 +121,22 @@ test_that("create: works with optional parameters", {
 
 test_that("create: shows usefull errors", {
   optional <- FGDatasetUploadParameters(
-    cell_metadata = "./test-datasets.R" # <--- should error
+    cell_metadata = "./test-datasets.R"
   )
   result <- create_dataset(default_conn,
-                           "R client test",
+                           "", # <--- should error
                            "description",
                            9606,
                            "./matrix.tsv" ,
                            "sparse_cell_gene_expression",
                            "Entrez",
                            optional )
-  expect_is(result, "FGErrorModelResponse")
+  expect_is(result, "FGValidationProblemResponse")
 })
 
 test_that("poll: works", {
   result <- create_dataset(default_conn,
-                           "R client test",
+                           "@R client test",
                            "description",
                            9606,
                            "./matrix.tsv" ,
@@ -148,7 +148,7 @@ test_that("poll: works", {
 
 test_that("poll: can cope with failure", {
   result <- create_dataset(default_conn,
-                           "R client test",
+                           "@R client test",
                            "description",
                            9606,
                            "./matrixWithError.tsv" ,

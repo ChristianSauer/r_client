@@ -10,8 +10,8 @@ respective gene/cell metadata data frames.}
 \usage{
 create_dataset_df(connection, matrix, cell_metadata, gene_metadata,
   gene_nomenclature, organism_id, title, zipfiles = TRUE,
-  description = "", short_description = "", batch_column = "",
-  optional_parameters = FGDatasetUploadParameters(), tmpdir = NULL)
+  description = "", optional_parameters = FGDatasetUploadParameters(),
+  tmpdir = NULL)
 }
 \arguments{
 \item{connection}{FASTGenomics connection object}
@@ -34,10 +34,6 @@ geneId column.}
 Default: TRUE}
 
 \item{description}{long description, Default: ""}
-
-\item{short_description}{short description, Default: ""}
-
-\item{batch_column}{The column in the gene_metadata which is used to hold batch information. Can be "" for no batch information}
 
 \item{optional_parameters}{Object representing further optional
 parameters, see \code{\link{FGDatasetUploadParameters}},
