@@ -5,7 +5,7 @@ get_cell_ids = function(spmat){spmat@Dimnames[[2]]}
 
 matrix_to_file = function(spmat, dir){
     spmat = as(spmat, "dgTMatrix")
-    file_name = file.path(dir, "matrix.csv")
+    file_name = file.path(dir, "expression_data.csv")
     df = data.frame(
         cellId = get_cell_ids(spmat)[spmat@j + 1],
         geneId = get_gene_ids(spmat)[spmat@i + 1],
@@ -113,8 +113,8 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
     if ( length(intersect(get_gene_ids(matrix), gene_metadata$geneId)) == 0 ) {
         stop("No common gene names found in matrix and gene_metadata.")
     }
-    if ( nchar(title) < 5 ) {
-        stop("Title has to be a string with at least 5 characters.")
+    if ( nchar(title) < 5 && nchar(title) <= 200 ) {
+        stop("Title has to be a string with length between 5 and 200.")
     }
 
     # adds a nice progress bar
@@ -126,7 +126,7 @@ create_dataset_df <- function(connection, matrix, cell_metadata,
         files = lapply(files, zip_file)
 
     body = list(
-        matrix = httr::upload_file(files[["matrix_csv"]]),
+        expression_data = httr::upload_file(files[["matrix_csv"]]),
         title = title,
         description = description,
         organism_id = organism_id,
