@@ -17,7 +17,7 @@ test_that("can get datasets successfully", {
 
   datasets <- get_datasets(default_conn, "Private")@content
   n_private_datasets = length(datasets)
-  expect_lt(n_private_datasets, n_all_datasets )
+  expect_lte(n_private_datasets, n_all_datasets )
 })
 
 test_that("can get mass dataset successfully", {
